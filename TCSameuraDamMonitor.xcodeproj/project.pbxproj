@@ -1,0 +1,912 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BAFBF7842FA5EB2A005632D5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAFBF7832FA5EB2A005632D5 /* WidgetKit.framework */; };
+		BAFBF7862FA5EB2A005632D5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAFBF7852FA5EB2A005632D5 /* SwiftUI.framework */; };
+		BAFBF7972FA5EB2B005632D5 /* TCSameuraDamMonitorWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BAFBF7812FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BAFBF8102FA70000005632D5 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BAFBF8112FA70000005632D5 /* InfoPlist.xcstrings */; };
+		CDXP20012FB0000000000001 /* TCSameuraDamCore in Frameworks */ = {isa = PBXBuildFile; productRef = CDXP20042FB0000000000001 /* TCSameuraDamCore */; };
+		CDXP20022FB0000000000001 /* TCSameuraDamCore in Frameworks */ = {isa = PBXBuildFile; productRef = CDXP20052FB0000000000001 /* TCSameuraDamCore */; };
+		CDXP20032FB0000000000001 /* TCSameuraDamCore in Frameworks */ = {isa = PBXBuildFile; productRef = CDXP20062FB0000000000001 /* TCSameuraDamCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BAFBF7952FA5EB2B005632D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BAFBF7652FA5E486005632D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BAFBF7802FA5EB2A005632D5;
+			remoteInfo = TCSameuraDamMonitorWidgetExtension;
+		};
+		BAFBF7A72FA64000005632D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BAFBF7652FA5E486005632D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BAFBF76C2FA5E486005632D5;
+			remoteInfo = TCSameuraDamMonitor;
+		};
+		BAFBF7B72FA80000005632D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BAFBF7652FA5E486005632D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BAFBF76C2FA5E486005632D5;
+			remoteInfo = TCSameuraDamMonitor;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BAFBF79C2FA5EB2B005632D5 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BAFBF7972FA5EB2B005632D5 /* TCSameuraDamMonitorWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		BAFBF76D2FA5E486005632D5 /* TCSameuraDamMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TCSameuraDamMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAFBF7812FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TCSameuraDamMonitorWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAFBF7832FA5EB2A005632D5 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		BAFBF7852FA5EB2A005632D5 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		BAFBF7A12FA64000005632D5 /* TCSameuraDamMonitorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TCSameuraDamMonitorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAFBF7B12FA80000005632D5 /* TCSameuraDamMonitorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TCSameuraDamMonitorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAFBF8112FA70000005632D5 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BAFBF7982FA5EB2B005632D5 /* Exceptions for "TCSameuraDamMonitorWidget" folder in "TCSameuraDamMonitorWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BAFBF7802FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BAFBF76F2FA5E486005632D5 /* TCSameuraDamMonitor */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TCSameuraDamMonitor;
+			sourceTree = "<group>";
+		};
+		BAFBF7872FA5EB2A005632D5 /* TCSameuraDamMonitorWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BAFBF7982FA5EB2B005632D5 /* Exceptions for "TCSameuraDamMonitorWidget" folder in "TCSameuraDamMonitorWidgetExtension" target */,
+			);
+			path = TCSameuraDamMonitorWidget;
+			sourceTree = "<group>";
+		};
+		BAFBF7A02FA64000005632D5 /* TCSameuraDamMonitorTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TCSameuraDamMonitorTests;
+			sourceTree = "<group>";
+		};
+		BAFBF7B02FA80000005632D5 /* TCSameuraDamMonitorUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TCSameuraDamMonitorUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BAFBF76A2FA5E486005632D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDXP20012FB0000000000001 /* TCSameuraDamCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF77E2FA5EB2A005632D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDXP20022FB0000000000001 /* TCSameuraDamCore in Frameworks */,
+				BAFBF7862FA5EB2A005632D5 /* SwiftUI.framework in Frameworks */,
+				BAFBF7842FA5EB2A005632D5 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF7A32FA64000005632D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDXP20032FB0000000000001 /* TCSameuraDamCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF7B32FA80000005632D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BAFBF7642FA5E486005632D5 = {
+			isa = PBXGroup;
+			children = (
+				BAFBF76F2FA5E486005632D5 /* TCSameuraDamMonitor */,
+				BAFBF7872FA5EB2A005632D5 /* TCSameuraDamMonitorWidget */,
+				BAFBF7A02FA64000005632D5 /* TCSameuraDamMonitorTests */,
+				BAFBF7B02FA80000005632D5 /* TCSameuraDamMonitorUITests */,
+				BAFBF8112FA70000005632D5 /* InfoPlist.xcstrings */,
+				BAFBF7822FA5EB2A005632D5 /* Frameworks */,
+				BAFBF76E2FA5E486005632D5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BAFBF76E2FA5E486005632D5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BAFBF76D2FA5E486005632D5 /* TCSameuraDamMonitor.app */,
+				BAFBF7812FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension.appex */,
+				BAFBF7A12FA64000005632D5 /* TCSameuraDamMonitorTests.xctest */,
+				BAFBF7B12FA80000005632D5 /* TCSameuraDamMonitorUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BAFBF7822FA5EB2A005632D5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BAFBF7832FA5EB2A005632D5 /* WidgetKit.framework */,
+				BAFBF7852FA5EB2A005632D5 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BAFBF76C2FA5E486005632D5 /* TCSameuraDamMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAFBF77A2FA5E487005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitor" */;
+			buildPhases = (
+				BAFBF7692FA5E486005632D5 /* Sources */,
+				BAFBF76A2FA5E486005632D5 /* Frameworks */,
+				BAFBF76B2FA5E486005632D5 /* Resources */,
+				BAFBF79C2FA5EB2B005632D5 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BAFBF7962FA5EB2B005632D5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BAFBF76F2FA5E486005632D5 /* TCSameuraDamMonitor */,
+			);
+			name = TCSameuraDamMonitor;
+			packageProductDependencies = (
+				CDXP20042FB0000000000001 /* TCSameuraDamCore */,
+			);
+			productName = TCSameuraDamMonitor;
+			productReference = BAFBF76D2FA5E486005632D5 /* TCSameuraDamMonitor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BAFBF7802FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAFBF7992FA5EB2B005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitorWidgetExtension" */;
+			buildPhases = (
+				BAFBF77D2FA5EB2A005632D5 /* Sources */,
+				BAFBF77E2FA5EB2A005632D5 /* Frameworks */,
+				BAFBF77F2FA5EB2A005632D5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BAFBF7872FA5EB2A005632D5 /* TCSameuraDamMonitorWidget */,
+			);
+			name = TCSameuraDamMonitorWidgetExtension;
+			packageProductDependencies = (
+				CDXP20052FB0000000000001 /* TCSameuraDamCore */,
+			);
+			productName = TCSameuraDamMonitorWidgetExtension;
+			productReference = BAFBF7812FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		BAFBF7A52FA64000005632D5 /* TCSameuraDamMonitorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAFBF7AA2FA64000005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitorTests" */;
+			buildPhases = (
+				BAFBF7A22FA64000005632D5 /* Sources */,
+				BAFBF7A32FA64000005632D5 /* Frameworks */,
+				BAFBF7A42FA64000005632D5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BAFBF7A62FA64000005632D5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BAFBF7A02FA64000005632D5 /* TCSameuraDamMonitorTests */,
+			);
+			name = TCSameuraDamMonitorTests;
+			packageProductDependencies = (
+				CDXP20062FB0000000000001 /* TCSameuraDamCore */,
+			);
+			productName = TCSameuraDamMonitorTests;
+			productReference = BAFBF7A12FA64000005632D5 /* TCSameuraDamMonitorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BAFBF7B52FA80000005632D5 /* TCSameuraDamMonitorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAFBF7BA2FA80000005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitorUITests" */;
+			buildPhases = (
+				BAFBF7B22FA80000005632D5 /* Sources */,
+				BAFBF7B32FA80000005632D5 /* Frameworks */,
+				BAFBF7B42FA80000005632D5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BAFBF7B62FA80000005632D5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BAFBF7B02FA80000005632D5 /* TCSameuraDamMonitorUITests */,
+			);
+			name = TCSameuraDamMonitorUITests;
+			packageProductDependencies = (
+			);
+			productName = TCSameuraDamMonitorUITests;
+			productReference = BAFBF7B12FA80000005632D5 /* TCSameuraDamMonitorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BAFBF7652FA5E486005632D5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					BAFBF76C2FA5E486005632D5 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					BAFBF7802FA5EB2A005632D5 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					BAFBF7A52FA64000005632D5 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = BAFBF76C2FA5E486005632D5;
+					};
+					BAFBF7B52FA80000005632D5 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = BAFBF76C2FA5E486005632D5;
+					};
+				};
+			};
+			buildConfigurationList = BAFBF7682FA5E486005632D5 /* Build configuration list for PBXProject "TCSameuraDamMonitor" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				ja,
+				Base,
+			);
+			mainGroup = BAFBF7642FA5E486005632D5;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CDXP20002FB0000000000001 /* XCLocalSwiftPackageReference "Packages/TCSameuraDamCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BAFBF76E2FA5E486005632D5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BAFBF76C2FA5E486005632D5 /* TCSameuraDamMonitor */,
+				BAFBF7802FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension */,
+				BAFBF7A52FA64000005632D5 /* TCSameuraDamMonitorTests */,
+				BAFBF7B52FA80000005632D5 /* TCSameuraDamMonitorUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BAFBF76B2FA5E486005632D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BAFBF8102FA70000005632D5 /* InfoPlist.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF77F2FA5EB2A005632D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF7A42FA64000005632D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF7B42FA80000005632D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BAFBF7692FA5E486005632D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF77D2FA5EB2A005632D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF7A22FA64000005632D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAFBF7B22FA80000005632D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BAFBF7962FA5EB2B005632D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BAFBF7802FA5EB2A005632D5 /* TCSameuraDamMonitorWidgetExtension */;
+			targetProxy = BAFBF7952FA5EB2B005632D5 /* PBXContainerItemProxy */;
+		};
+		BAFBF7A62FA64000005632D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BAFBF76C2FA5E486005632D5 /* TCSameuraDamMonitor */;
+			targetProxy = BAFBF7A72FA64000005632D5 /* PBXContainerItemProxy */;
+		};
+		BAFBF7B62FA80000005632D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BAFBF76C2FA5E486005632D5 /* TCSameuraDamMonitor */;
+			targetProxy = BAFBF7B72FA80000005632D5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BAFBF7782FA5E487005632D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BAFBF7792FA5E487005632D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		BAFBF77B2FA5E487005632D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TCSameuraDamMonitor/TCSameuraDamMonitor.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = "read-write";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/BaseInfo.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		BAFBF77C2FA5E487005632D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TCSameuraDamMonitor/TCSameuraDamMonitor.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = "read-write";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/BaseInfo.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		BAFBF79A2FA5EB2B005632D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TCSameuraDamMonitorWidget/TCSameuraDamMonitorWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TCSameuraDamMonitorWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TCSameuraDamMonitorWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitor.TCSameuraDamMonitorWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BAFBF79B2FA5EB2B005632D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TCSameuraDamMonitorWidget/TCSameuraDamMonitorWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TCSameuraDamMonitorWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TCSameuraDamMonitorWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitor.TCSameuraDamMonitorWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BAFBF7A82FA64000005632D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TCSameuraDamMonitor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TCSameuraDamMonitor";
+			};
+			name = Debug;
+		};
+		BAFBF7A92FA64000005632D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TCSameuraDamMonitor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TCSameuraDamMonitor";
+			};
+			name = Release;
+		};
+		BAFBF7B82FA80000005632D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TCSameuraDamMonitor;
+			};
+			name = Debug;
+		};
+		BAFBF7B92FA80000005632D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = W4YK6966L9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tecogonaz.TCSameuraDamMonitorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TCSameuraDamMonitor;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BAFBF7682FA5E486005632D5 /* Build configuration list for PBXProject "TCSameuraDamMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAFBF7782FA5E487005632D5 /* Debug */,
+				BAFBF7792FA5E487005632D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAFBF77A2FA5E487005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAFBF77B2FA5E487005632D5 /* Debug */,
+				BAFBF77C2FA5E487005632D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAFBF7992FA5EB2B005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitorWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAFBF79A2FA5EB2B005632D5 /* Debug */,
+				BAFBF79B2FA5EB2B005632D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAFBF7AA2FA64000005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAFBF7A82FA64000005632D5 /* Debug */,
+				BAFBF7A92FA64000005632D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAFBF7BA2FA80000005632D5 /* Build configuration list for PBXNativeTarget "TCSameuraDamMonitorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAFBF7B82FA80000005632D5 /* Debug */,
+				BAFBF7B92FA80000005632D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		CDXP20002FB0000000000001 /* XCLocalSwiftPackageReference "Packages/TCSameuraDamCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/TCSameuraDamCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CDXP20042FB0000000000001 /* TCSameuraDamCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDXP20002FB0000000000001 /* XCLocalSwiftPackageReference "Packages/TCSameuraDamCore" */;
+			productName = TCSameuraDamCore;
+		};
+		CDXP20052FB0000000000001 /* TCSameuraDamCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDXP20002FB0000000000001 /* XCLocalSwiftPackageReference "Packages/TCSameuraDamCore" */;
+			productName = TCSameuraDamCore;
+		};
+		CDXP20062FB0000000000001 /* TCSameuraDamCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDXP20002FB0000000000001 /* XCLocalSwiftPackageReference "Packages/TCSameuraDamCore" */;
+			productName = TCSameuraDamCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BAFBF7652FA5E486005632D5 /* Project object */;
+}
