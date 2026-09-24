@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated: September 5, 2026**
+**Last updated: September 24, 2026**
 
 > This English version is a translation of the Japanese original `PRIVACY-ja.md`. The Japanese original is the authoritative text. If there is any discrepancy or conflict between this English translation and the Japanese original, the Japanese original prevails.
 
@@ -36,6 +36,4 @@ There is no account-deletion process because the App has no account or server-si
 
 This policy will be updated if data practices change. The update date and changes will be reflected in the published policy and source code repository. Notice will also be provided in the App or through the distribution service when appropriate.
 
-Questions may be submitted through an Issue in the following Codeberg repository. Issues are public, so do not include personal or confidential information. If such information is necessary, first ask how to make contact without including it.
-
-- Codeberg: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple
+Questions may be submitted through [Issues in the GitHub repository](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/issues). Issues are public, so do not include personal or confidential information. If such information is necessary, first ask how to make contact without including it.

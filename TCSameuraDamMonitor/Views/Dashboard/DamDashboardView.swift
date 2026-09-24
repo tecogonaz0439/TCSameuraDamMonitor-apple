@@ -261,15 +261,18 @@ struct DamDashboardView: View {
             }
         }
         .sheet(isPresented: $showHistoricalRangeSheet) {
-            if isDailyMode, let record = appModel.sudmonitorHistoryRecord {
-                HistoricalRangeSheet(
-                    appModel: appModel,
-                    dailyPeriod: (record.periodStartDay, record.periodEndDay),
-                    dailyDam: appModel.currentDamConfig
-                )
-            } else if let meta = appModel.selectedHistoricalMeta {
-                HistoricalRangeSheet(appModel: appModel, meta: meta)
+            Group {
+                if isDailyMode, let record = appModel.sudmonitorHistoryRecord {
+                    HistoricalRangeSheet(
+                        appModel: appModel,
+                        dailyPeriod: (record.periodStartDay, record.periodEndDay),
+                        dailyDam: appModel.currentDamConfig
+                    )
+                } else if let meta = appModel.selectedHistoricalMeta {
+                    HistoricalRangeSheet(appModel: appModel, meta: meta)
+                }
             }
+            .recoversSheetContentOnForegroundReturn()
         }
     }
 

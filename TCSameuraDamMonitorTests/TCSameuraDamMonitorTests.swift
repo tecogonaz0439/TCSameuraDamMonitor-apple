@@ -3309,6 +3309,68 @@ struct WidgetBridgeTests {
         #expect(log.timestamp == fetchTime)
     }
 
+    @Test func widgetBridgeImportKeepsHistoricalSelectionAndDisplayedRows() async throws {
+        let defaults = try testDefaults()
+        let settingsRepository = SettingsRepository(defaults: defaults)
+        var settings = AppSettings(locale: Locale(identifier: "en"))
+        settings.autoUpdateEnabled = true
+        settings.updateOnBoot = false
+        settings.autoUpdateInterval = .oneHour
+        let fetchTime = try jstDateTime(year: 2030, month: 6, day: 22, hour: 1, minute: 11)
+        let widgetNext = try jstDateTime(year: 2030, month: 6, day: 22, hour: 2, minute: 11)
+        settings.nextRequestedUpdate = widgetNext
+        settingsRepository.save(settings)
+
+        let context = try inMemoryModelContext()
+        let damConfig = try #require(DamListData.dam(id: AppSettings.defaultDamId))
+        let meta = historicalMeta(dam: damConfig, start: "20260501", end: "20260502", sortOrder: 0)
+        context.insert(HistoricalSearchMetaRecord(meta: meta))
+        context.insert(DamDataRecord(
+            encodedData: try JSONEncoder().encode(damData(storagePercentage: Float(70))),
+            lastFetchTime: try jstDateTime(year: 2030, month: 6, day: 22, hour: 0, minute: 30),
+            rawDatBytes: Data("old".utf8)
+        ))
+        try context.save()
+
+        let appModel = DamAppModel(
+            network: MlitNetworkDataSource(fetcher: FixtureFetcher(responses: [:]).fetch),
+            networkAvailability: FixedNetworkAvailability(isNetworkAvailable: true),
+            settingsRepository: settingsRepository,
+            widgetGroupDefaults: defaults,
+            widgetStandardDefaults: defaults
+        )
+        appModel.configure(modelContext: context, launchContext: .background)
+        let displayedRows = [historicalRow(time: "2026/05/01 01:00")]
+        appModel.selectedHistoricalMeta = meta
+        appModel.historicalRows = displayedRows
+        appModel.selectedDetail = .historical(meta.id)
+
+        let datBytes = realtimeDatData(rows: [
+            realtimeDatRow("2030/06/22", "01:00", storageVolume: 76000, storagePercentage: 76),
+            realtimeDatRow("2030/06/22", "01:10", storageVolume: 77000, storagePercentage: 77),
+        ])
+        let bridge = DamCoreRawDatBridge(
+            stationId: "1368080700010",
+            dataUrl: "https://www1.river.go.jp/cgi-bin/DspDamData.exe?ID=1368080700010&KIND=3&PAGE=0",
+            fetchedAt: fetchTime,
+            rawBytes: datBytes,
+            rawDatFileName: "1368080700010_203006220110.dat"
+        )
+        defaults.set(try JSONEncoder().encode(bridge), forKey: WidgetDefaultsKey.rawDatBridgeV1)
+        defaults.set(fetchTime.timeIntervalSinceReferenceDate, forKey: WidgetDefaultsKey.widgetLastFetchAt)
+        defaults.set(widgetNext.timeIntervalSinceReferenceDate, forKey: WidgetDefaultsKey.nextRequestedUpdate)
+
+        appModel.completeForegroundStartupIfNeeded(reason: "sceneActive")
+        try await waitUntil {
+            appModel.lastFetchTime == fetchTime
+        }
+
+        #expect(appModel.damData?.storagePercentage == Float(77))
+        #expect(appModel.selectedHistoricalMeta == meta)
+        #expect(appModel.historicalRows == displayedRows)
+        #expect(appModel.selectedDetail == .historical(meta.id))
+    }
+
     @Test func widgetBridgeImportAcceptsSudmonitorDataUrl() async throws {
         let defaults = try testDefaults()
         let settingsRepository = SettingsRepository(defaults: defaults)
@@ -3672,6 +3734,66 @@ struct TimeFormattersTests {
     @Test("millisIfValid returns nil for invalid time")
     func millisIfValidReturnsNilForInvalidTime() {
         #expect(TimeFormatters.millisIfValid(fromDamTime: "invalid") == nil)
+    }
+}
+
+@Suite("Sudmonitor daily history range line")
+@MainActor
+struct SudmonitorHistoryRangeLineTests {
+    @Test("Uses the first and last valid values with min/max")
+    func usesFirstAndLastValidValues() {
+        let rows = [
+            graphRow("2026/07/01 01:00", storagePercentage: 81.0),
+            graphRow("2026/07/02 01:00", storagePercentage: 82.5),
+            graphRow("2026/07/03 01:00", storagePercentage: 80.0),
+        ]
+
+        #expect(DisplayFormatters.sudmonitorHistoryRangeLine(rows) == "81.00% → 80.00% (80.00% ~ 82.50%)")
+    }
+
+    @Test("Falls back to the last valid value when the latest row is missing")
+    func fallsBackToLastValidValueWhenLatestRowIsMissing() {
+        let rows = [
+            graphRow("2026/07/01 01:00", storagePercentage: 81.0),
+            graphRow("2026/07/02 01:00", storagePercentage: 82.5),
+            graphRow("2026/07/03 01:00", storagePercentage: nil),
+        ]
+
+        #expect(DisplayFormatters.sudmonitorHistoryRangeLine(rows) == "81.00% → 82.50% (81.00% ~ 82.50%)")
+    }
+
+    @Test("Falls back to the first valid value when the earliest row is missing")
+    func fallsBackToFirstValidValueWhenEarliestRowIsMissing() {
+        let rows = [
+            graphRow("2026/07/01 01:00", storagePercentage: nil),
+            graphRow("2026/07/02 01:00", storagePercentage: 82.5),
+            graphRow("2026/07/03 01:00", storagePercentage: 83.0),
+        ]
+
+        #expect(DisplayFormatters.sudmonitorHistoryRangeLine(rows) == "82.50% → 83.00% (82.50% ~ 83.00%)")
+    }
+
+    @Test("Min/max ignore missing values between valid rows")
+    func minMaxIgnoreMissingValues() {
+        let rows = [
+            graphRow("2026/07/01 01:00", storagePercentage: 81.0),
+            graphRow("2026/07/02 01:00", storagePercentage: nil),
+            graphRow("2026/07/03 01:00", storagePercentage: 90.0),
+            graphRow("2026/07/04 01:00", storagePercentage: 82.0),
+        ]
+
+        #expect(DisplayFormatters.sudmonitorHistoryRangeLine(rows) == "81.00% → 82.00% (81.00% ~ 90.00%)")
+    }
+
+    @Test("Returns missing text when no row has a valid value")
+    func returnsMissingTextWhenAllValuesAreMissing() {
+        let rows = [
+            graphRow("2026/07/01 01:00", storagePercentage: nil),
+            graphRow("2026/07/02 01:00", storagePercentage: nil),
+        ]
+
+        #expect(DisplayFormatters.sudmonitorHistoryRangeLine(rows) == "-- %")
+        #expect(DisplayFormatters.sudmonitorHistoryRangeLine([]) == "-- %")
     }
 }
 

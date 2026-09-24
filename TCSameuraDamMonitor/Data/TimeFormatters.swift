@@ -60,6 +60,15 @@ internal struct TimeFormatters {
         return formatter
     }()
 
+    /// ISO8601規格（JSTタイムゾーン固定・秒なし）のフォーマッタ（例: "2026-06-17T00:00+09:00"）。
+    internal static let iso8601JSTNoSeconds: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mmXXX"
+        return formatter
+    }()
+
     /// 先頭ゼロを省略した時間用フォーマッタ（例: "0:00"）。
     internal static let jstTimeNoLeadingZero: DateFormatter = {
         let formatter = DateFormatter()

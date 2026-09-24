@@ -1,6 +1,6 @@
 # Terms of Use
 
-**Last updated: September 5, 2026**
+**Last updated: September 24, 2026**
 
 > This English version is a translation of the Japanese original `TERMS-ja.md`. The Japanese original is the authoritative text. If there is any discrepancy or conflict between this English translation and the Japanese original, the Japanese original prevails.
 
@@ -30,12 +30,11 @@ Displayed values, notifications, widgets, historical graphs, day-over-day change
 
 ## 4. Distribution Sources
 
-The official distribution sources for the App are the Releases pages of the development repositories, **Codeberg** (primary) and **GitHub** (mirror), and Apple's **TestFlight** service. Releases pages distribute ZIP archives containing the notarized macOS `.app`, while beta builds for iOS, iPadOS, and macOS are distributed through TestFlight.
+The official distribution sources for the App are **GitHub Releases** and Apple's **TestFlight** service. GitHub Releases provides a ZIP archive containing the notarized macOS app. TestFlight provides beta builds for iOS, iPadOS, and macOS.
 
-- Codeberg Releases: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple/releases
 - GitHub Releases: https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases
 
-General availability of the iOS, iPadOS, and macOS versions on the Apple App Store is planned for a later date.
+General availability of the iOS, iPadOS, and macOS versions on the Apple App Store is planned for a later date. AltStore PAL is a future distribution candidate for the iOS app in Japan, but the App is not currently distributed through it. Distribution in Japan through an alternative app marketplace requires iOS 26.2 or later. Apple's regional requirements state that apps distributed through a marketplace in Japan must support iPhone; iPadOS marketplace distribution is listed for the EU. The macOS app is also outside the scope of this marketplace.
 
 If you obtain the App through TestFlight or the future Apple App Store, Apple's TestFlight and App Store terms, Apple Developer Program License Agreement, and other applicable Apple terms govern matters relating to acquisition, beta testing, distribution, updates, listing, suspension, refunds, and similar Apple-platform procedures. If these Terms conflict with Apple's terms regarding those procedures or functions, Apple's terms prevail for that scope.
 
@@ -79,7 +78,7 @@ Debug logs are generated automatically for troubleshooting and stored in the App
 
 ## 8. External Services and Links
 
-The App may link to, launch, or share content with external services or external apps, including MLIT-related pages, map apps, browsers, OS sharing features, Codeberg, and GitHub.
+The App may link to, launch, or share content with external services or external apps, including MLIT-related pages, map apps, browsers, OS sharing features, and GitHub.
 
 Use of external services or external apps is subject to the terms, privacy policies, and usage conditions of each provider. We are not responsible for the content, availability, accuracy, safety, changes, suspension, or results of use of external services or external apps.
 
@@ -90,7 +89,7 @@ You must use the App in compliance with applicable laws, these Terms, the terms 
 You must not engage in the following acts.
 
 - Acts that violate laws, public order and morals, third-party rights, these Terms, or the terms of distribution sources
-- Acts that impose excessive load, cause failures, perform unauthorized access, or interfere with the App, MLIT public servers, the cache server, Codeberg, GitHub, external services, third-party devices, or networks
+- Acts that impose excessive load, cause failures, perform unauthorized access, or interfere with the App, MLIT public servers, the cache server, GitHub, external services, third-party devices, or networks
 - Acts that mislead users into believing that the App or a modified version is an official version, approved version, or sponsored version of MLIT or any other third party
 - Acts of using or distributing the App or a modified version for malware, unauthorized code, phishing, fraud, impersonation, false display, misleading display, or deception of users
 - Acts of presenting displayed data from the App as if it were official information and causing third parties to make incorrect important decisions
@@ -100,7 +99,7 @@ You must not engage in the following acts.
 
 We may change the App's features, specifications, displays, supported OS versions, supported devices, distribution methods, distribution sources, repositories, documentation, Privacy Policy, or these Terms as necessary.
 
-We may suspend or terminate distribution, updates, provision, or support of the App due to changes in MLIT public data specifications, suspension of external services, changes in policies or terms of distribution platforms such as Codeberg/GitHub, changes in Apple App Store or Apple Developer Program policies, security reasons, maintenance, legal requirements, or other unavoidable circumstances.
+We may suspend or terminate distribution, updates, provision, or support of the App due to changes in MLIT public data specifications, suspension of external services, changes in policies or terms of distribution platforms such as GitHub, changes in Apple App Store or Apple Developer Program policies, security reasons, maintenance, legal requirements, or other unavoidable circumstances.
 
 If these Terms are changed, the revised Terms take effect when published in the repository, in the App, on a distribution page, or by another method we deem appropriate. If you use the App after the change, you are deemed to have agreed to the revised Terms.
 
@@ -128,8 +127,8 @@ If a dispute arises between us and a user in connection with these Terms or the 
 
 ## 15. Contact
 
-As a general rule, inquiries regarding these Terms, the App, the Privacy Policy, or licenses should be made through Issues in the source code repository (Codeberg).
+As a general rule, inquiries regarding these Terms, the App, the Privacy Policy, or licenses should be submitted through [Issues in the GitHub repository](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/issues).
 
-- Codeberg: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple
+Issues are public. Do not include personal or confidential information.
 
 We do not guarantee individual responses, investigations, fixes, updates, or support for all inquiries.

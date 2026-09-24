@@ -66,6 +66,39 @@ final class TCSameuraDamMonitorUITests: XCTestCase {
         XCTAssertTrue(errorApp.element("snackbar.message").waitForExistence(timeout: 8))
     }
 
+    /// シートを提示したまま長時間バックグラウンドへ置いたとき、前面復帰でシート内容が
+    /// 作り直されることを検証します。ホームボタン操作が必要なため macOS ではスキップします。
+    @MainActor
+    func testHistoricalSearchSheetRebuildsContentAfterLongBackground() throws {
+        #if os(iOS)
+        let app = launch(
+            scenario: "dashboardLoaded",
+            language: "en",
+            locale: "en_US",
+            extraEnvironment: ["TCSMDM_UI_TEST_SHEET_RECOVERY_THRESHOLD_SECONDS": "5"]
+        )
+        openNavigationItem("nav.historicalSearch", in: app)
+        XCTAssertTrue(app.element("historicalSearch.root").waitForExistence(timeout: 3))
+        tapWhenHittable(app.element("historicalSearch.dam"), in: app)
+        XCTAssertTrue(app.element("historicalSearch.damPicker").waitForExistence(timeout: 3))
+
+        // しきい値未満のバックグラウンドでは内容を作り直さない。
+        XCUIDevice.shared.press(.home)
+        usleep(1_000_000)
+        app.activate()
+        XCTAssertTrue(app.element("historicalSearch.damPicker").waitForExistence(timeout: 8))
+
+        // しきい値を超えるバックグラウンドでは内容を作り直し、push した画面をルートへ戻す。
+        XCUIDevice.shared.press(.home)
+        usleep(8_000_000)
+        app.activate()
+        XCTAssertTrue(app.element("historicalSearch.root").waitForExistence(timeout: 8))
+        XCTAssertTrue(app.element("historicalSearch.damPicker").waitForNonExistence(timeout: 8))
+        #else
+        throw XCTSkip("Requires home button simulation available on iOS only.")
+        #endif
+    }
+
     func testSettingsDamSelectionSheetPickerCancelAndSelect() throws {
         let app = launch(scenario: "dashboardLoaded", language: "en", locale: "en_US")
         let sameuraDamID = "1368080700010"
@@ -1118,6 +1151,8 @@ final class TCSameuraDamMonitorUITests: XCTestCase {
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             // iPadOS のサイドバー行は結合ラベルに3行(ダム名 / 期間 / 貯水率要約)を含む。
+            // fixture の最新行(2026/6/30 24:00)は貯水率欠測のため、要約は直近の有効値(82.0%)へ
+            // フォールバックする。旧実装は "-- %" になるため、このアサーションが回帰を検出する。
             XCTAssertTrue(entry.label.contains("早明浦ダム"))
             XCTAssertTrue(entry.label.contains("2026/06/01 01:00 - 2026/07/01 00:00"))
             XCTAssertTrue(entry.label.contains("81.00% → 82.00%"))
@@ -1239,24 +1274,6 @@ final class TCSameuraDamMonitorUITests: XCTestCase {
         XCTAssertTrue(app.element("historicalManage.empty").exists)
     }
 
-    /// 設定画面で自動更新 ON + 間隔 1時間/12時間のとき footer 文言が表示されることを検証します。
-    func testDailyHistorySettingsAutoUpdateIntervalFooter() throws {
-        let app = launch(scenario: "dailyHistoryLoaded", language: "ja", locale: "ja_JP")
-        XCTAssertTrue(app.element("dashboard.root").waitForExistence(timeout: 8))
-
-        openNavigationItem("nav.settings", in: app)
-        XCTAssertTrue(app.element("settings.root").waitForExistence(timeout: 3))
-        tapToggle(identifier: "settings.autoUpdate", in: app)
-
-        selectAutoUpdateInterval("12時間", in: app)
-        XCTAssertTrue(
-            app.staticTexts["過去データ(日次)の自動更新間隔は1日になります。"].waitForExistence(timeout: 3)
-        )
-
-        selectAutoUpdateInterval("1時間", in: app)
-        XCTAssertTrue(app.staticTexts["過去データ(日次)の自動更新間隔は1日になります。"].exists)
-    }
-
     /// 日次表示画面(早明浦・読込済み)で過去比較グラフが表示可能なことを検証します。
     func testDailyHistoryComparisonGraphAvailable() throws {
         let app = launch(scenario: "dailyHistoryLoaded", language: "ja", locale: "ja_JP")
@@ -1311,24 +1328,12 @@ final class TCSameuraDamMonitorUITests: XCTestCase {
         XCTAssertTrue(app.buttons["先月"].waitForNonExistence(timeout: 3), "calendar must close after selection")
     }
 
-    /// 設定の自動更新間隔ピッカーから指定ラベル(例: "12時間")を選択します。
-    private func selectAutoUpdateInterval(_ label: String, in app: XCUIApplication) {
-        let row = app.buttons
-            .matching(NSPredicate(format: "label BEGINSWITH %@", "自動更新 間隔"))
-            .firstMatch
-        XCTAssertTrue(row.waitForExistence(timeout: 3))
-        _ = scrollToElement(row, in: app)
-        tapWhenHittable(row, in: app)
-        let item = app.buttons[label]
-        XCTAssertTrue(item.waitForExistence(timeout: 3))
-        item.tap()
-    }
-
     private func launch(
         scenario: String,
         language: String,
         locale: String,
-        preserveDefaults: Bool = false
+        preserveDefaults: Bool = false,
+        extraEnvironment: [String: String] = [:]
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = [
@@ -1341,6 +1346,7 @@ final class TCSameuraDamMonitorUITests: XCTestCase {
             "TCSMDM_UI_SCENARIO": scenario,
             "TCSMDM_UI_TEST_RUN_ID": "\(runID!)-\(scenario)-\(language)",
         ]
+        app.launchEnvironment.merge(extraEnvironment) { _, new in new }
         if preserveDefaults {
             app.launchEnvironment["TCSMDM_UI_TEST_PRESERVE_DEFAULTS"] = "1"
         }

@@ -155,8 +155,6 @@ internal enum AppText {
     internal static var appInfoOSSLicense: String { t("appInfo.ossLicense") }
     /// 「GitHubリポジトリ」表示ラベル。
     internal static var appInfoGitHub: String { t("appInfo.github") }
-    /// 「Codebergリポジトリ」表示ラベル。
-    internal static var appInfoCodeberg: String { t("appInfo.codeberg") }
     /// 「バージョン情報」ダイアログタイトル。
     internal static var dialogVersionTitle: String { t("dialog.version.title") }
     /// 「ライセンス情報」ダイアログタイトル。
@@ -452,7 +450,6 @@ internal enum AppText {
     internal static var settingsAutoUpdate: String { t("settings.autoUpdate") }
     /// 「更新時間間隔」設定項目。
     internal static var settingsAutoUpdateInterval: String { t("settings.autoUpdateInterval") }
-    internal static var settingsAutoUpdateIntervalDailyHistoryFooter: String { t("settings.autoUpdateIntervalDailyHistoryFooter") }
     /// 「最終自動更新実行時間」表示。
     internal static var settingsAutoUpdateLast: String { t("settings.autoUpdateLast") }
     /// 「次回自動更新予定時間」表示。
@@ -1119,16 +1116,17 @@ internal enum DisplayFormatters {
     }
 
     /// sudmonitor 日次過去データの貯水率 (Storage rate) の変化要約テキストを構築します（例: "50.00% → 60.00% (45.00% ~ 65.00%)"）。
+    ///
+    /// 開始値は期間内で最初の有効値、終了値は最後の有効値とし、最新行が欠測でも直近の有効値へ
+    /// フォールバックします。期間内に有効値が 1 つもない場合のみ "-- %" を返します。
     /// - Parameter rows: 日次過去データの観測行（時刻昇順）。
     /// - Returns: 変化要約文字列。
     internal static func sudmonitorHistoryRangeLine(_ rows: [DamHistoricalData]) -> String {
-        guard let start = rows.first?.storagePercentage, let end = rows.last?.storagePercentage else { return "-- %" }
-        let range: String
-        if let min = rows.compactMap(\.storagePercentage).min(), let max = rows.compactMap(\.storagePercentage).max() {
-            range = " (\(percent(min)) ~ \(percent(max)))"
-        } else {
-            range = ""
+        let percentages = rows.compactMap(\.storagePercentage)
+        guard let start = percentages.first, let end = percentages.last,
+              let min = percentages.min(), let max = percentages.max() else {
+            return "-- %"
         }
-        return "\(percent(start)) → \(percent(end))\(range)"
+        return "\(percent(start)) → \(percent(end)) (\(percent(min)) ~ \(percent(max)))"
     }
 }

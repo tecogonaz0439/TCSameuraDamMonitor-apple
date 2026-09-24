@@ -1,7 +1,4 @@
-# macOS metadata
 .DS_Store
-
-# Xcode / local Apple build outputs
 /build/
 /DerivedData/
 **/xcuserdata/
@@ -9,6 +6,4 @@
 **/.build/
 **/.swiftpm/
 Packages/TCSameuraDamCore/build/
-
-# AI agent working files
 /work/

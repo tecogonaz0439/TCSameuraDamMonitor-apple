@@ -9,11 +9,11 @@ import SwiftData
 import TCSameuraDamCore
 @testable import TCSameuraDamMonitor
 
-/// sudmonitor 日次過去データの取得・保存・クールダウン判定 [SudmonitorHistoryService] のテスト。
+/// sudmonitor 日次過去データの取得・保存・取得要否判定 [SudmonitorHistoryService] のテスト。
 ///
 /// 注入フェッチャ ([HeaderFixtureFetcher]) と in-memory SwiftData を使い、
-/// fetch→upsert・404/5xx・期間ヘッダー欠落・フォールバック・cooldown・機能ゲート・
-/// 初回起動（未保存時のみ）を検証します。
+/// fetch→upsert・404/5xx・期間ヘッダー欠落・フォールバック・取得要否ゲート・手動更新 cooldown・
+/// 機能ゲート・初回起動（未保存時のみ）を検証します。
 @Suite("Sudmonitor daily history service", .serialized)
 @MainActor
 struct SudmonitorHistoryServiceTests {
@@ -25,6 +25,43 @@ struct SudmonitorHistoryServiceTests {
             network: MlitNetworkDataSource(headerFetcher: fetcher.fetch),
             now: { clock.current }
         ))
+    }
+
+    private func fetchAndStore(
+        _ service: SudmonitorHistoryService,
+        damId: String,
+        context: ModelContext,
+        historicalDataSource: RealtimeDataSource,
+        now: Date
+    ) async -> SudmonitorHistoryFetchOutcome {
+        let preparation = await service.fetchLatest(
+            damId: damId,
+            historicalDataSource: historicalDataSource,
+            now: now
+        )
+        return service.store(preparation, damId: damId, context: context, now: now)
+    }
+
+    private func autoFetch(
+        _ service: SudmonitorHistoryService,
+        damId: String,
+        context: ModelContext,
+        historicalDataSource: RealtimeDataSource,
+        now: Date
+    ) async -> SudmonitorHistoryFetchOutcome {
+        guard SudmonitorHistoryService.isGateEnabled(historicalDataSource: historicalDataSource) else {
+            return .gateDisabled
+        }
+        if !service.shouldAutoFetch(damId: damId, context: context, now: now) {
+            return .skippedUpToDate
+        }
+        return await fetchAndStore(
+            service,
+            damId: damId,
+            context: context,
+            historicalDataSource: historicalDataSource,
+            now: now
+        )
     }
 
     private func makeAppModel(sudFetcher: HeaderFixtureFetcher, defaults: UserDefaults) -> DamAppModel {
@@ -74,7 +111,8 @@ struct SudmonitorHistoryServiceTests {
         startDay: String = "20260701",
         endDay: String = "20260731",
         fetchedAt: Date,
-        nextUpdateAt: Date?
+        nextUpdateAt: Date?,
+        rawDatBytes: Data = Data("old".utf8)
     ) {
         context.insert(SudmonitorHistoryRecord(
             damId: damId,
@@ -82,9 +120,45 @@ struct SudmonitorHistoryServiceTests {
             periodEndDay: endDay,
             fetchedAt: fetchedAt,
             nextUpdateAt: nextUpdateAt,
-            rawDatBytes: Data("old".utf8)
+            rawDatBytes: rawDatBytes
         ))
         try? context.save()
+    }
+
+    /// 指定日時(JST)を末尾行に持つ日次DATを生成します。
+    /// - Parameters:
+    ///   - lastRowDay: 末尾行の日付(yyyy/M/d)。
+    ///   - lastRowTime: 末尾行の時刻。
+    ///   - lastRowPercentage: 末尾行の貯水率値。性状欄も合わせて異常値にする場合は `nil` を指定する。
+    private func dailyDat(
+        lastRowDay: String,
+        lastRowTime: String,
+        lastRowPercentage: Float? = 100.0
+    ) -> Data {
+        let attribute = lastRowPercentage == nil ? "-" : " "
+        let percentage = lastRowPercentage.map { String($0) } ?? "0.0"
+        let header = """
+        水系名,吉野川
+        河川名,吉野川
+        観測所名,早明浦ダム
+        観測所記号,\(damId)
+        2026/5/1,01:00,0.0, ,179550, ,19.33, ,29.70, ,50.0, 
+        2026/6/1,01:00,0.0, ,179550, ,19.33, ,29.70, ,60.0, 
+
+        """
+        let row = "\(lastRowDay),\(lastRowTime),0.0, ,179550, ,19.33, ,29.70, ,\(percentage),\(attribute)"
+        return Data([0xEF, 0xBB, 0xBF]) + Data("\(header)\(row)\n".utf8)
+    }
+
+    /// JST の昨日(yyyy/M/d)を返します。前日 `24:00` (= 当日 00:00) の末尾行を作るために使います。
+    private func jstYesterdaySlashDate(now: Date = Date()) -> String {
+        let yesterday = Calendar.jst.date(
+            byAdding: .day,
+            value: -1,
+            to: Calendar.jst.startOfDay(for: now)
+        ) ?? now
+        let components = Calendar.jst.dateComponents([.year, .month, .day], from: yesterday)
+        return "\(components.year ?? 0)/\(components.month ?? 0)/\(components.day ?? 0)"
     }
 
     private func records(in context: ModelContext) throws -> [SudmonitorHistoryRecord] {
@@ -100,7 +174,7 @@ struct SudmonitorHistoryServiceTests {
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
 
-        let outcome = await service.fetchAndStore(
+        let outcome = await fetchAndStore(service, 
             damId: damId,
             context: context,
             historicalDataSource: .sudmonitor,
@@ -128,6 +202,39 @@ struct SudmonitorHistoryServiceTests {
         #expect(record.rawDatFileName == "latest.dat")
     }
 
+    @Test func fetchStoresRecordWithSecondlessPeriodHeaders() async throws {
+        let bytes = Data("sample dat bytes".utf8)
+        let fetcher = HeaderFixtureFetcher(responses: [
+            latestURL: (bytes, dailyHeaders(
+                since: "2026-07-01T01:00+09:00",
+                until: "2026-07-31T24:00+09:00"
+            )),
+        ])
+        let clock = TestClock(now: try jstDateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0))
+        let service = makeService(fetcher: fetcher, clock: clock)
+        let context = try inMemoryModelContext()
+
+        let outcome = await fetchAndStore(service, 
+            damId: damId,
+            context: context,
+            historicalDataSource: .sudmonitor,
+            now: clock.current
+        )
+
+        guard case .stored = outcome else {
+            Issue.record("Expected stored but got \(outcome)")
+            return
+        }
+        #expect(fetcher.requestedURLs == [latestURL])
+        let records = try records(in: context)
+        #expect(records.count == 1)
+        let record = try #require(records.first)
+        #expect(record.damId == damId)
+        #expect(record.periodStartDay == "20260701")
+        #expect(record.periodEndDay == "20260731")
+        #expect(record.rawDatBytes == bytes)
+    }
+
     @Test func refetchOverwritesExistingRecordAndUpdatesPeriod() async throws {
         let firstFetcher = HeaderFixtureFetcher(responses: [
             latestURL: (Data("first".utf8), dailyHeaders()),
@@ -146,7 +253,7 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
 
         let firstService = makeService(fetcher: firstFetcher, clock: clock)
-        let first = await firstService.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let first = await fetchAndStore(firstService, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
         guard case .stored = first else {
             Issue.record("Expected stored but got \(first)")
             return
@@ -154,7 +261,7 @@ struct SudmonitorHistoryServiceTests {
 
         clock.current = try jstDateTime(year: 2026, month: 7, day: 16, hour: 12, minute: 0)
         let secondService = makeService(fetcher: secondFetcher, clock: clock)
-        let second = await secondService.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let second = await fetchAndStore(secondService, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
         guard case .stored = second else {
             Issue.record("Expected stored but got \(second)")
             return
@@ -192,7 +299,7 @@ struct SudmonitorHistoryServiceTests {
             nextUpdateAt: nil
         )
 
-        let outcome = await service.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let outcome = await fetchAndStore(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
         guard case .stored = outcome else {
             Issue.record("Expected stored but got \(outcome)")
@@ -211,7 +318,7 @@ struct SudmonitorHistoryServiceTests {
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
 
-        let outcome = await service.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let outcome = await fetchAndStore(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
         guard case .skippedNotFound = outcome else {
             Issue.record("Expected skippedNotFound but got \(outcome)")
@@ -230,7 +337,7 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(in: context, fetchedAt: clock.current, nextUpdateAt: nil)
 
-        let outcome = await service.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let outcome = await fetchAndStore(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
         guard case .failure = outcome else {
             Issue.record("Expected failure but got \(outcome)")
@@ -248,7 +355,7 @@ struct SudmonitorHistoryServiceTests {
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
 
-        let outcome = await service.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let outcome = await fetchAndStore(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
         guard case .skippedInvalidPeriod = outcome else {
             Issue.record("Expected skippedInvalidPeriod but got \(outcome)")
@@ -268,7 +375,7 @@ struct SudmonitorHistoryServiceTests {
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
 
-        let outcome = await service.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let outcome = await fetchAndStore(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
         guard case .skippedInvalidPeriod = outcome else {
             Issue.record("Expected skippedInvalidPeriod but got \(outcome)")
@@ -293,7 +400,7 @@ struct SudmonitorHistoryServiceTests {
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
 
-        let outcome = await service.fetchAndStore(damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let outcome = await fetchAndStore(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
         guard case .stored = outcome else {
             Issue.record("Expected stored but got \(outcome)")
@@ -304,31 +411,35 @@ struct SudmonitorHistoryServiceTests {
         #expect(record.nextUpdateAt == expectedNextUpdateAt)
     }
 
-    @Test func autoFetchOneHourAndTwelveHoursSkipWhileNextUpdateAtInFuture() async throws {
+    @Test func autoFetchSkipsOnlyWhileLastRowIsTodayStartOfDay() async throws {
         let fetcher = HeaderFixtureFetcher(responses: [:])
         let clock = TestClock(now: try jstDateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0))
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: clock.current,
-            nextUpdateAt: clock.current.addingTimeInterval(3600)
+            fetchedAt: clock.current.addingTimeInterval(-86400),
+            nextUpdateAt: clock.current.addingTimeInterval(3600),
+            rawDatBytes: dailyDat(lastRowDay: "2026/7/14", lastRowTime: "24:00")
         )
 
-        let oneHour = await service.autoFetch(interval: .oneHour, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
-        guard case .skippedByCooldown = oneHour else {
-            Issue.record("Expected skippedByCooldown but got \(oneHour)")
-            return
-        }
-        let twelveHours = await service.autoFetch(interval: .twelveHours, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
-        guard case .skippedByCooldown = twelveHours else {
-            Issue.record("Expected skippedByCooldown but got \(twelveHours)")
+        let sameDay = await autoFetch(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        guard case .skippedUpToDate = sameDay else {
+            Issue.record("Expected skippedUpToDate but got \(sameDay)")
             return
         }
         #expect(fetcher.requestedURLs.isEmpty)
+
+        clock.current = try jstDateTime(year: 2026, month: 7, day: 16, hour: 12, minute: 0)
+        let nextDay = await autoFetch(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        guard case .skippedNotFound = nextDay else {
+            Issue.record("Expected skippedNotFound after the day changed but got \(nextDay)")
+            return
+        }
+        #expect(fetcher.requestedURLs == [latestURL], "当日00:00が最終行でなくなったため取得を試みる")
     }
 
-    @Test func autoFetchOneDayAndOneWeekExecuteRegardlessOfCooldown() async throws {
+    @Test func autoFetchFetchesWhenLastRowStoragePercentageIsMissing() async throws {
         let fetcher = HeaderFixtureFetcher(responses: [
             latestURL: (Data("sample".utf8), dailyHeaders()),
         ])
@@ -337,47 +448,66 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: clock.current,
-            nextUpdateAt: clock.current.addingTimeInterval(3600)
+            fetchedAt: clock.current.addingTimeInterval(-86400),
+            nextUpdateAt: nil,
+            rawDatBytes: dailyDat(lastRowDay: "2026/7/14", lastRowTime: "24:00", lastRowPercentage: nil)
         )
 
-        let oneDay = await service.autoFetch(interval: .oneDay, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
-        guard case .stored = oneDay else {
-            Issue.record("Expected stored but got \(oneDay)")
-            return
-        }
-        let oneWeek = await service.autoFetch(interval: .oneWeek, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
-        guard case .stored = oneWeek else {
-            Issue.record("Expected stored but got \(oneWeek)")
-            return
-        }
-        #expect(fetcher.requestedURLs == [latestURL, latestURL])
-        #expect(try records(in: context).count == 1)
-    }
+        let outcome = await autoFetch(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
-    @Test func autoFetchShortIntervalsExecuteAfterNextUpdateAtPassed() async throws {
-        let fetcher = HeaderFixtureFetcher(responses: [
-            latestURL: (Data("sample".utf8), dailyHeaders()),
-        ])
-        let clock = TestClock(now: try jstDateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0))
-        let service = makeService(fetcher: fetcher, clock: clock)
-        let context = try inMemoryModelContext()
-        seedRecord(
-            in: context,
-            fetchedAt: clock.current,
-            nextUpdateAt: clock.current.addingTimeInterval(-3600)
-        )
-
-        let oneHour = await service.autoFetch(interval: .oneHour, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
-
-        guard case .stored = oneHour else {
-            Issue.record("Expected stored but got \(oneHour)")
+        guard case .stored = outcome else {
+            Issue.record("Expected stored but got \(outcome)")
             return
         }
         #expect(fetcher.requestedURLs == [latestURL])
     }
 
-    @Test func autoFetchShortIntervalsExecuteWhenNoRecordExists() async throws {
+    @Test func autoFetchFetchesWhenLastRowIsNotTodayStartOfDay() async throws {
+        let fetcher = HeaderFixtureFetcher(responses: [
+            latestURL: (Data("sample".utf8), dailyHeaders()),
+        ])
+        let clock = TestClock(now: try jstDateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0))
+        let service = makeService(fetcher: fetcher, clock: clock)
+        let context = try inMemoryModelContext()
+        seedRecord(
+            in: context,
+            fetchedAt: clock.current.addingTimeInterval(-86400),
+            nextUpdateAt: nil,
+            rawDatBytes: dailyDat(lastRowDay: "2026/7/13", lastRowTime: "24:00")
+        )
+
+        let outcome = await autoFetch(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+
+        guard case .stored = outcome else {
+            Issue.record("Expected stored but got \(outcome)")
+            return
+        }
+        #expect(fetcher.requestedURLs == [latestURL])
+    }
+
+    @Test func autoFetchFetchesWhenSavedRawDatCannotBeParsed() async throws {
+        let fetcher = HeaderFixtureFetcher(responses: [
+            latestURL: (Data("sample".utf8), dailyHeaders()),
+        ])
+        let clock = TestClock(now: try jstDateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0))
+        let service = makeService(fetcher: fetcher, clock: clock)
+        let context = try inMemoryModelContext()
+        seedRecord(
+            in: context,
+            fetchedAt: clock.current.addingTimeInterval(-86400),
+            nextUpdateAt: nil
+        )
+
+        let outcome = await autoFetch(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+
+        guard case .stored = outcome else {
+            Issue.record("Expected stored but got \(outcome)")
+            return
+        }
+        #expect(fetcher.requestedURLs == [latestURL], "判定不能時は取得する")
+    }
+
+    @Test func autoFetchFetchesWhenNoRecordExists() async throws {
         let fetcher = HeaderFixtureFetcher(responses: [
             latestURL: (Data("sample".utf8), dailyHeaders()),
         ])
@@ -385,10 +515,10 @@ struct SudmonitorHistoryServiceTests {
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
 
-        let twelveHours = await service.autoFetch(interval: .twelveHours, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
+        let outcome = await autoFetch(service, damId: damId, context: context, historicalDataSource: .sudmonitor, now: clock.current)
 
-        guard case .stored = twelveHours else {
-            Issue.record("Expected stored but got \(twelveHours)")
+        guard case .stored = outcome else {
+            Issue.record("Expected stored but got \(outcome)")
             return
         }
         #expect(fetcher.requestedURLs == [latestURL])
@@ -400,12 +530,12 @@ struct SudmonitorHistoryServiceTests {
         let service = makeService(fetcher: fetcher, clock: clock)
         let context = try inMemoryModelContext()
 
-        let outcome = await service.fetchAndStore(damId: damId, context: context, historicalDataSource: .mlitDirect, now: clock.current)
+        let outcome = await fetchAndStore(service, damId: damId, context: context, historicalDataSource: .mlitDirect, now: clock.current)
         guard case .gateDisabled = outcome else {
             Issue.record("Expected gateDisabled but got \(outcome)")
             return
         }
-        let auto = await service.autoFetch(interval: .oneDay, damId: damId, context: context, historicalDataSource: .mlitDirect, now: clock.current)
+        let auto = await autoFetch(service, damId: damId, context: context, historicalDataSource: .mlitDirect, now: clock.current)
         guard case .gateDisabled = auto else {
             Issue.record("Expected gateDisabled but got \(auto)")
             return
@@ -421,14 +551,14 @@ struct SudmonitorHistoryServiceTests {
         seedRecord(
             in: context,
             fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(3600)
+            nextUpdateAt: nil
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
 
         let message = await appModel.performSudmonitorHistoryManualUpdate()
 
-        #expect(message != nil)
+        #expect(message != nil, "最終成功取得から1時間未満はブロックする")
         #expect(fetcher.requestedURLs.isEmpty)
     }
 
@@ -440,15 +570,15 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(-3600)
+            fetchedAt: Date().addingTimeInterval(-3600),
+            nextUpdateAt: Date().addingTimeInterval(3600)
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
 
         let message = await appModel.performSudmonitorHistoryManualUpdate()
 
-        #expect(message == nil)
+        #expect(message == nil, "最終成功取得から1時間経過後は nextUpdateAt に関わらず実行する")
         #expect(fetcher.requestedURLs == [latestURL])
         let records = try records(in: context)
         #expect(records.count == 1)
@@ -609,6 +739,7 @@ struct SudmonitorHistoryServiceTests {
         let first = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         first.configure(modelContext: context, launchContext: .foreground)
         try await waitUntil { first.damLoadStatus != .initial }
+        try await waitUntil { (try? records(in: context).count) == 1 }
 
         let firstHistoryRequestCount = fetcher.requestedURLs.filter { $0 == latestURL }.count
         #expect(try records(in: context).count == 1)
@@ -617,6 +748,7 @@ struct SudmonitorHistoryServiceTests {
         let second = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         second.configure(modelContext: context, launchContext: .foreground)
         try await waitUntil { second.damLoadStatus != .initial }
+        try await Task.sleep(nanoseconds: 500_000_000)
 
         #expect(fetcher.requestedURLs.filter { $0 == latestURL }.count == firstHistoryRequestCount, "保存済みのため再取得しない")
         #expect(try records(in: context).count == 1)
@@ -634,8 +766,8 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(-3600)
+            fetchedAt: Date().addingTimeInterval(-3600),
+            nextUpdateAt: nil
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
@@ -661,8 +793,8 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(-3600)
+            fetchedAt: Date().addingTimeInterval(-3600),
+            nextUpdateAt: nil
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
@@ -681,7 +813,7 @@ struct SudmonitorHistoryServiceTests {
         seedRecord(
             in: context,
             fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(3600)
+            nextUpdateAt: nil
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
@@ -706,8 +838,8 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(-3600)
+            fetchedAt: Date().addingTimeInterval(-3600),
+            nextUpdateAt: nil
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
@@ -850,23 +982,23 @@ struct SudmonitorHistoryServiceTests {
         #expect(record.rawDatBytes == Data("auto".utf8))
     }
 
-    @Test func autoUpdateSkippedByCooldownDoesNotBumpRevision() async throws {
+    @Test func autoUpdateSkippedUpToDateDoesNotBumpRevision() async throws {
         let fetcher = HeaderFixtureFetcher(responses: [:])
         let defaults = try testDefaults()
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(3600)
+            fetchedAt: Date().addingTimeInterval(-86400),
+            nextUpdateAt: nil,
+            rawDatBytes: dailyDat(lastRowDay: jstYesterdaySlashDate(), lastRowTime: "24:00")
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
-        appModel.settings.autoUpdateInterval = .oneHour
         let revisionBefore = appModel.sudmonitorHistoryRevision
 
         await appModel.fetchSudmonitorHistoryAutoUpdate()
 
-        #expect(fetcher.requestedURLs.isEmpty)
+        #expect(fetcher.requestedURLs.isEmpty, "当日00:00の有効値が保存済みのため取得しない")
         #expect(appModel.sudmonitorHistoryRevision == revisionBefore)
         #expect(!appModel.isSudmonitorHistoryAutoUpdateRunning)
     }
@@ -879,8 +1011,8 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(-3600)
+            fetchedAt: Date().addingTimeInterval(-3600),
+            nextUpdateAt: nil
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)
@@ -982,8 +1114,8 @@ struct SudmonitorHistoryServiceTests {
         let context = try inMemoryModelContext()
         seedRecord(
             in: context,
-            fetchedAt: Date(),
-            nextUpdateAt: Date().addingTimeInterval(-3600)
+            fetchedAt: Date().addingTimeInterval(-3600),
+            nextUpdateAt: nil
         )
         let appModel = makeAppModel(sudFetcher: fetcher, defaults: defaults)
         appModel.configure(modelContext: context, launchContext: .background)

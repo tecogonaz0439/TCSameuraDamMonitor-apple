@@ -157,6 +157,7 @@ struct DebugView: View {
         }
         .sheet(isPresented: $showDebugDataPeriodSheet) {
             DebugDataPeriodSheet(appModel: appModel, isPresented: $showDebugDataPeriodSheet)
+                .recoversSheetContentOnForegroundReturn()
         }
     }
 

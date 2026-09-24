@@ -91,6 +91,8 @@ final class DamAppModel {
     internal static let maxPinnedCount = 5
     /// 手動更新が許可される最小時間間隔（クールダウン期間、10分）。
     internal static let manualRefreshCooldown: TimeInterval = 10 * 60
+    /// 提示中のシート内容を再構築する判断に使う、連続バックグラウンド時間の既定しきい値（30秒）。
+    internal static let defaultSheetRecoveryBackgroundThreshold: TimeInterval = 30
 
     /// アプリの詳細画面の選択先を表す列挙型。
     internal enum DetailSelection: Hashable {
@@ -189,6 +191,16 @@ final class DamAppModel {
     @ObservationIgnored private var didRunForegroundStartup = false
     @ObservationIgnored private var previousPercentTime: String?
     @ObservationIgnored internal var isSceneActive = true
+    /// 提示中のシート内容を再構築する世代。長時間のバックグラウンドから復帰すると 1 進む。
+    ///
+    /// iOS では、長時間サスペンドされた状態で提示中のシートが、復帰後に内容を描画できずに
+    /// 空白のままになることがある。シートを閉じて開き直すと復帰するため、前面復帰時に
+    /// この世代を進め、シート内容のビュー identity を変えて作り直す。
+    private(set) var sheetRecoveryGeneration = 0
+    /// バックグラウンドへ入った時刻。フォアグラウンドにある間は `nil`。
+    @ObservationIgnored private var backgroundEnteredAt: Date?
+    /// 提示中のシート内容を再構築する判断に使う、連続バックグラウンド時間のしきい値。
+    internal let sheetRecoveryBackgroundThreshold: TimeInterval
     /// UIにスナックバーメッセージを表示するためのトリガー用プロパティ。
     var updateSnackbarMessage: String?
     var showInitialAutoUpdateDialog: Bool = false
@@ -216,7 +228,8 @@ final class DamAppModel {
         widgetStandardDefaults: UserDefaults = .standard,
         notificationCoordinator: NotificationCoordinator = NotificationCoordinator(),
         historicalComparisonService: HistoricalComparisonService = HistoricalComparisonService(),
-        debugDataSessionService: DebugDataSessionService? = nil
+        debugDataSessionService: DebugDataSessionService? = nil,
+        sheetRecoveryBackgroundThreshold: TimeInterval = DamAppModel.defaultSheetRecoveryBackgroundThreshold
     ) {
         self.parser = parser
         self.realtimeDataService = RealtimeDataService(
@@ -242,6 +255,7 @@ final class DamAppModel {
         self.autoUpdateScheduler = AutoUpdateScheduler()
         self.historicalComparisonService = historicalComparisonService
         self.debugDataSessionService = debugDataSessionService ?? (try? DebugDataSessionService())
+        self.sheetRecoveryBackgroundThreshold = sheetRecoveryBackgroundThreshold
         settings = settingsRepository.load()
         dashboardCardExpansionState = dashboardCardExpansionRepository.load()
     }
@@ -501,6 +515,25 @@ final class DamAppModel {
         runForegroundStartupIfNeeded(reason: reason)
     }
 
+    /// シーンがバックグラウンドへ移ったことを記録します。
+    /// - Parameter now: 現在日時。
+    internal func noteSceneEnteredBackground(now: Date = Date()) {
+        backgroundEnteredAt = now
+    }
+
+    /// シーンがアクティブになったことを記録し、長時間のバックグラウンドを経ていれば
+    /// 提示中シートの内容を再構築する世代を進めます。
+    /// - Parameter now: 現在日時。
+    internal func noteSceneBecameActive(now: Date = Date()) {
+        let enteredAt = backgroundEnteredAt
+        backgroundEnteredAt = nil
+        guard let enteredAt,
+              now.timeIntervalSince(enteredAt) >= sheetRecoveryBackgroundThreshold else {
+            return
+        }
+        sheetRecoveryGeneration += 1
+    }
+
     /// フォアグラウンド移行時の起動初期セットアップ処理を内部実行します。
     private func runForegroundStartupIfNeeded(reason: String) {
         guard !didRunForegroundStartup else { return }
@@ -694,7 +727,7 @@ final class DamAppModel {
         guard settings.autoUpdateEnabled else {
             return AppText.mainAutorenewDisabled
         }
-        let interval = sudmonitorHistoryEffectiveIntervalLabel
+        let interval = settings.autoUpdateInterval.localizedLabel
         if let record = sudmonitorHistoryRecord {
             return AppText.mainAutorenewEnabledWithLast(interval: interval, last: dateTimeWithJSTSuffix(record.fetchedAt, includeWeekday: false))
         }
@@ -724,16 +757,18 @@ final class DamAppModel {
             return AppText.mainRefreshTooEarly(sudmonitorHistoryNextManualRefreshDateTimeText)
         }
         isSudmonitorHistoryManualRunning = true
-        defer { isSudmonitorHistoryManualRunning = false }
         let outcome = await performSudmonitorHistoryFetchOutcome(damId: damId, context: context)
-        logSudmonitorHistoryOutcome(outcome, workType: "Daily history manual update", damId: damId)
-        switch outcome {
-        case .stored:
-            return nil
-        case .failure(let error):
-            return sudmonitorHistoryManualUpdateFailureMessage(error)
-        case .skippedNotFound, .skippedInvalidPeriod, .skippedByCooldown, .gateDisabled:
-            return nil
+        return await MainActor.run {
+            self.isSudmonitorHistoryManualRunning = false
+            self.logSudmonitorHistoryOutcome(outcome, workType: "Daily history manual update", damId: damId)
+            switch outcome {
+            case .stored:
+                return nil
+            case .failure(let error):
+                return self.sudmonitorHistoryManualUpdateFailureMessage(error)
+            case .skippedNotFound, .skippedInvalidPeriod, .skippedUpToDate, .gateDisabled:
+                return nil
+            }
         }
     }
 
@@ -750,16 +785,10 @@ final class DamAppModel {
     /// sudmonitor 日次過去データの手動更新がクールダウン中のためブロックされている場合のメッセージを取得します。
     var sudmonitorHistoryManualUpdateBlockedMessage: String? {
         if settings.debugModeEnabled { return nil }
-        guard let nextUpdateAt = sudmonitorHistoryRecord?.nextUpdateAt,
-              nextUpdateAt > Date() else { return nil }
+        guard let context = modelContext,
+              let availableAt = sudmonitorHistoryService.manualRefreshAvailableAt(damId: settings.targetDamId, context: context),
+              availableAt > Date() else { return nil }
         return AppText.mainRefreshTooEarly(sudmonitorHistoryNextManualRefreshDateTimeText)
-    }
-
-    /// 日次過去データの自動更新間隔の実効表示ラベル（1時間/12時間は「1日」）を取得します。
-    private var sudmonitorHistoryEffectiveIntervalLabel: String {
-        settings.autoUpdateInterval == .oneWeek
-            ? AutoUpdateInterval.oneWeek.localizedLabel
-            : AutoUpdateInterval.oneDay.localizedLabel
     }
 
     /// sudmonitor 日次過去データの手動更新失敗時の通知テキスト（リアルタイム同款）を構築します。
@@ -2020,9 +2049,8 @@ final class DamAppModel {
             ))
             try context.save()
             damData = parsed
-            historicalRows = []
-            selectedHistoricalMeta = nil
-            selectedDetail = .realtime
+            // ウィジェット取込はユーザー操作を伴わないリアルタイムデータ更新のため、
+            // 表示中の過去データ選択・表示画面は維持する(fetchLatest の Initial load 以外と同じ規則)。
             bumpGraphDataRevision()
             lastFetchTime = fetchTime
             manualRefreshAvailableAt = availableAt
@@ -2110,8 +2138,10 @@ final class DamAppModel {
         let damId = settings.targetDamId
         guard sudmonitorHistoryService.record(damId: damId, context: context) == nil else { return }
         isSudmonitorHistoryInitialRunning = true
-        defer { isSudmonitorHistoryInitialRunning = false }
         await performSudmonitorHistoryFetch(workType: workType, damId: damId, context: context)
+        await MainActor.run {
+            self.isSudmonitorHistoryInitialRunning = false
+        }
     }
 
     /// ダム変更に伴う sudmonitor 日次過去データの自動再取得（常に実行・上書き）を実行します。
@@ -2121,8 +2151,10 @@ final class DamAppModel {
         guard !isAnySudmonitorHistoryFetchRunning else { return }
         guard let context = modelContext else { return }
         isSudmonitorHistoryInitialRunning = true
-        defer { isSudmonitorHistoryInitialRunning = false }
         await performSudmonitorHistoryFetch(workType: "Daily history dam change", damId: settings.targetDamId, context: context)
+        await MainActor.run {
+            self.isSudmonitorHistoryInitialRunning = false
+        }
     }
 
     /// 自動更新スケジューラに連動した sudmonitor 日次過去データの自動取得を実行します。
@@ -2133,35 +2165,56 @@ final class DamAppModel {
         guard !isAnySudmonitorHistoryFetchRunning else { return }
         guard let context = modelContext else { return }
         isSudmonitorHistoryAutoUpdateRunning = true
-        defer { isSudmonitorHistoryAutoUpdateRunning = false }
+        let damId = settings.targetDamId
         if settings.debugModeEnabled {
-            let outcome = await performSudmonitorHistoryFetchOutcome(damId: settings.targetDamId, context: context)
-            logSudmonitorHistoryOutcome(outcome, workType: "Daily history auto update", damId: settings.targetDamId)
+            let outcome = await performSudmonitorHistoryFetchOutcome(damId: damId, context: context)
+            await MainActor.run {
+                self.isSudmonitorHistoryAutoUpdateRunning = false
+                self.logSudmonitorHistoryOutcome(outcome, workType: "Daily history auto update", damId: damId)
+            }
             return
         }
-        let outcome = await sudmonitorHistoryService.autoFetch(
-            interval: settings.autoUpdateInterval,
-            damId: settings.targetDamId,
-            context: context,
-            historicalDataSource: settings.historicalDataSource
-        )
-        if case .stored = outcome {
-            bumpSudmonitorHistoryRevision()
+        let now = Date()
+        let outcome: SudmonitorHistoryFetchOutcome
+        if !sudmonitorHistoryService.shouldAutoFetch(damId: damId, context: context, now: now) {
+            outcome = .skippedUpToDate
+        } else {
+            let preparation = await sudmonitorHistoryService.fetchLatest(
+                damId: damId,
+                historicalDataSource: settings.historicalDataSource,
+                now: now
+            )
+            outcome = await MainActor.run {
+                guard let context = self.modelContext else {
+                    return .failure(AppError.modelContextNotReady)
+                }
+                return self.sudmonitorHistoryService.store(preparation, damId: damId, context: context, now: now)
+            }
         }
-        logSudmonitorHistoryOutcome(outcome, workType: "Daily history auto update", damId: settings.targetDamId)
+        await MainActor.run {
+            self.isSudmonitorHistoryAutoUpdateRunning = false
+            if case .stored = outcome {
+                self.bumpSudmonitorHistoryRevision()
+            }
+            self.logSudmonitorHistoryOutcome(outcome, workType: "Daily history auto update", damId: damId)
+        }
     }
 
     /// sudmonitor 日次過去データの取得・保存を実行し、結果をデバッグログへ記録します。
     private func performSudmonitorHistoryFetch(workType: String, damId: String, context: ModelContext) async {
         let outcome = await performSudmonitorHistoryFetchOutcome(damId: damId, context: context)
-        logSudmonitorHistoryOutcome(outcome, workType: workType, damId: damId)
+        await MainActor.run {
+            self.logSudmonitorHistoryOutcome(outcome, workType: workType, damId: damId)
+        }
     }
 
     /// sudmonitor 日次過去データの取得・保存を実行し、保存成功時は UI 反映用リビジョンを進めます。
     private func performSudmonitorHistoryFetchOutcome(damId: String, context: ModelContext) async -> SudmonitorHistoryFetchOutcome {
         let outcome = await sudmonitorHistoryFetchOutcome(damId: damId, context: context)
         if case .stored = outcome {
-            bumpSudmonitorHistoryRevision()
+            await MainActor.run {
+                self.bumpSudmonitorHistoryRevision()
+            }
         }
         return outcome
     }
@@ -2169,11 +2222,18 @@ final class DamAppModel {
     /// sudmonitor 日次過去データの取得・保存（またはデバッグDAT保存）を実行します。
     private func sudmonitorHistoryFetchOutcome(damId: String, context: ModelContext) async -> SudmonitorHistoryFetchOutcome {
         guard settings.debugModeEnabled else {
-            return await sudmonitorHistoryService.fetchAndStore(
+            let now = Date()
+            let preparation = await sudmonitorHistoryService.fetchLatest(
                 damId: damId,
-                context: context,
-                historicalDataSource: settings.historicalDataSource
+                historicalDataSource: settings.historicalDataSource,
+                now: now
             )
+            return await MainActor.run {
+                guard let context = self.modelContext else {
+                    return .failure(AppError.modelContextNotReady)
+                }
+                return self.sudmonitorHistoryService.store(preparation, damId: damId, context: context, now: now)
+            }
         }
         switch settings.debugSimulateMode {
         case .networkUnavailable:
@@ -2225,8 +2285,8 @@ final class DamAppModel {
             addDebugLog(message: "\(workType) skipped.", details: "Daily history not found (Dam ID: \(damId))")
         case .skippedInvalidPeriod:
             addDebugLog(message: "\(workType) skipped.", details: "Daily history period headers missing (Dam ID: \(damId))")
-        case .skippedByCooldown:
-            addDebugLog(message: "\(workType) skipped.", details: "Next update not reached (Dam ID: \(damId))")
+        case .skippedUpToDate:
+            addDebugLog(message: "\(workType) skipped.", details: "Daily history already up to date (Dam ID: \(damId))")
         case .gateDisabled:
             break
         case .failure(let error):

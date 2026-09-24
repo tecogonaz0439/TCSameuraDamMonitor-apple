@@ -52,6 +52,7 @@ struct ContentView: View {
         }
         .sheet(isPresented: $model.showHistoricalSearch) {
             HistoricalSearchView(appModel: appModel)
+                .recoversSheetContentOnForegroundReturn()
         }
         .alert(AppText.dialogInitialAutoUpdateTitle, isPresented: $model.showInitialAutoUpdateDialog) {
             Button(AppText.actionYes) {
@@ -82,6 +83,11 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase) { _, newValue in
             appModel.isSceneActive = (newValue != .background)
+            if newValue == .background {
+                appModel.noteSceneEnteredBackground()
+            } else if newValue == .active {
+                appModel.noteSceneBecameActive()
+            }
         }
         .onChange(of: appModel.selectedDetail) { oldValue, newValue in
             if DashboardNavigation.shouldResetPath(oldSelection: oldValue, newSelection: newValue) {
@@ -101,6 +107,7 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(colorScheme)
+        .environment(\.sheetRecoveryGeneration, appModel.sheetRecoveryGeneration)
     }
 
     /// `NavigationSplitView` を使用した、非コンパクト幅の画面用のルートビュー。

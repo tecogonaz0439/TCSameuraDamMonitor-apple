@@ -62,8 +62,15 @@ enum UITestLaunchSupport {
                         })
                     )
                     : HistoricalComparisonService(),
-                debugDataSessionService: DebugDataSessionService(backupRootURL: Self.debugDataBackupRootURL)
+                debugDataSessionService: DebugDataSessionService(backupRootURL: Self.debugDataBackupRootURL),
+                sheetRecoveryBackgroundThreshold: Self.sheetRecoveryBackgroundThreshold
             )
+        }
+
+        /// シート再構築のしきい値。UI テストからは環境変数で短縮できる。
+        private static var sheetRecoveryBackgroundThreshold: TimeInterval {
+            ProcessInfo.processInfo.environment["TCSMDM_UI_TEST_SHEET_RECOVERY_THRESHOLD_SECONDS"]
+                .flatMap { TimeInterval($0) } ?? DamAppModel.defaultSheetRecoveryBackgroundThreshold
         }
 
         func prepareDefaults() {
@@ -358,6 +365,10 @@ enum UITestLaunchSupport {
         }
 
         /// sudmonitor 日次過去データ(latest.dat 相当)のフィクスチャバイナリ。
+        ///
+        /// 最新行(2026/6/30 24:00 = 2026/7/1 00:00)は貯水率と性状欄が欠測(`0.0,-`)であり、
+        /// サイドバー/サマリーCardの貯水率要約が直近の有効値(2026/6/30 01:00 の 82.0%)へ
+        /// フォールバックすることを検証する。
         private static var dailyHistoryRawDat: Data {
             var data = Data([0xEF, 0xBB, 0xBF])
             let text = """
@@ -368,6 +379,7 @@ enum UITestLaunchSupport {
             2026/6/1,01:00,0, ,229000, ,10.0, ,9.0, ,81.0, 
             2026/6/12,01:00,0, ,230000, ,11.0, ,9.5, ,81.5, 
             2026/6/30,01:00,0, ,231000, ,12.0, ,10.0, ,82.0, 
+            2026/6/30,24:00,0, ,231500, ,12.2, ,10.1, ,0.0,-
             """
             data.append(Data(text.utf8))
             return data

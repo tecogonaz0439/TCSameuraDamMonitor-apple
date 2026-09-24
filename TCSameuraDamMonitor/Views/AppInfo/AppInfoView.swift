@@ -18,8 +18,6 @@ struct AppInfoView: View {
     @State private var versionTapCount = 0
     /// クリック数をリセットするためのアクティブなタイマータスク。
     @State private var tapResetTask: Task<Void, Never>?
-    /// Codeberg共有ダイアログの表示状態を決定するローカルステート。
-    @State private var showCodebergMenu = false
     /// GitHub共有ダイアログの表示状態を決定するローカルステート。
     @State private var showGitHubMenu = false
     #if os(macOS)
@@ -28,8 +26,6 @@ struct AppInfoView: View {
     #endif
     /// GitHubリポジトリのURL。
     private let githubURL = "https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/"
-    /// CodebergリポジトリのURL。
-    private let codebergURL = "https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple/"
     /// サードパーティ製OSSのライセンス表示が必要かどうか。
     private let showsThirdPartyOSSLicenses = false
 
@@ -150,44 +146,6 @@ struct AppInfoView: View {
                             .foregroundStyle(.primary)
                     }
                     .accessibilityIdentifier("appInfo.ossLicense")
-                }
-
-                Button {
-                    #if os(macOS)
-                    presentMacRepositoryAlert(title: AppText.appInfoCodeberg, urlString: codebergURL)
-                    #else
-                    showCodebergMenu = true
-                    #endif
-                } label: {
-                    Label {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(AppText.appInfoCodeberg)
-                            Text(codebergURL)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    } icon: {
-                        repositoryIcon("CodebergIcon")
-                    }
-                    .macAppInfoLabelStyle()
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .confirmationDialog(
-                    AppText.appInfoCodeberg,
-                    isPresented: $showCodebergMenu,
-                    titleVisibility: .visible
-                ) {
-                    if let url = URL(string: codebergURL) {
-                        Link(AppText.openURL, destination: url)
-                    }
-                    ShareLink(item: codebergURL) {
-                        Text(AppText.shareURL)
-                    }
-                } message: {
-                    Text(AppText.selectRepositoryAction)
                 }
 
                 Button {

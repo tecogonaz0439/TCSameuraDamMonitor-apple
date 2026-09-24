@@ -13,12 +13,38 @@ internal enum SudmonitorHistoryFetchOutcome: Sendable {
     case skippedNotFound
     /// since/until ヘッダーが欠落・不正で期間を確定できないため何も保存しなかった。
     case skippedInvalidPeriod
-    /// 自動更新間隔(1時間/12時間)のクールダウンが明けていないため何も取得しなかった。
-    case skippedByCooldown
+    /// 保存済みデータの最終行が当日 00:00 の有効値のため取得不要と判定し、何も取得しなかった。
+    case skippedUpToDate
     /// 機能ゲート(過去データの取得ソース設定)が無効のため何も行わなかった。
     case gateDisabled
     /// その他の失敗。
     case failure(Error)
+}
+
+/// 日次過去データの保存に必要な取得結果。
+internal struct SudmonitorHistoryFetchedDat: Sendable {
+    /// 期間開始日(yyyyMMdd)。
+    internal let periodStartDay: String
+    /// 期間終了日(yyyyMMdd)。
+    internal let periodEndDay: String
+    /// 次回更新予定時刻(ヘッダー欠落時はフォールバック値)。
+    internal let nextUpdateAt: Date?
+    /// 取得したDATファイルの全バイト。
+    internal let rawDatBytes: Data
+}
+
+/// 日次過去データの取得段階の結果(SwiftData 保存前)。
+internal enum SudmonitorHistoryFetchPreparation: Sendable {
+    /// 機能ゲート(過去データの取得ソース設定)が無効のため何も行わなかった。
+    case gateDisabled
+    /// 404(未蓄積)または非対応ダムのため何も保存しなかった。
+    case skippedNotFound
+    /// since/until ヘッダーが欠落・不正で期間を確定できないため何も保存しなかった。
+    case skippedInvalidPeriod
+    /// その他の失敗。
+    case failure(Error)
+    /// 保存可能な取得結果。
+    case ready(SudmonitorHistoryFetchedDat)
 }
 
 /// デバッグ用の日次過去DATが満たすべき構造の検証エラー。
@@ -65,24 +91,22 @@ internal struct SudmonitorHistoryService {
             .first { $0.damId == damId }
     }
 
-    /// 対象ダムの日次過去データを取得し、damId ごとに1件へ上書き保存します。
+    /// 対象ダムの日次過去データを取得し、保存前段階の結果を返します。
     ///
     /// 機能ゲート(`historicalDataSource == .sudmonitor`)が無効の場合は何も行いません。
     /// 404(未蓄積)・非対応ダムは静かにスキップし、期間ヘッダー(since/until)の欠落・不正も
-    /// レコードを作成せずスキップします。保存は damId で fetch → delete → insert +
-    /// `context.save()` の all-or-nothing で行います。
+    /// 保存対象にしません。通信・期間解析のみを非隔離で行い、SwiftData 保存は
+    /// `store(_:damId:context:now:)` を MainActor 上で呼び出して行います。
     /// - Parameters:
     ///   - damId: 対象ダムの観測所ID。
-    ///   - context: SwiftData のモデルコンテキスト。
     ///   - historicalDataSource: 過去データ検索のデータソース設定(機能ゲート判定)。
-    ///   - now: 取得・保存日時(既定は現在日時)。
-    /// - Returns: 取得・保存結果。
-    internal func fetchAndStore(
+    ///   - now: 取得日時(既定は現在日時)。
+    /// - Returns: 取得段階の結果。
+    nonisolated internal func fetchLatest(
         damId: String,
-        context: ModelContext,
         historicalDataSource: RealtimeDataSource,
         now: Date = Date()
-    ) async -> SudmonitorHistoryFetchOutcome {
+    ) async -> SudmonitorHistoryFetchPreparation {
         guard Self.isGateEnabled(historicalDataSource: historicalDataSource) else {
             return .gateDisabled
         }
@@ -92,20 +116,60 @@ internal struct SudmonitorHistoryService {
         case .failure(let error):
             return .failure(error)
         case .success(let response):
-            guard let (startDay, endDay) = HistoricalSearchService.historyDayRange(from: response) else {
+            let validated = await MainActor.run {
+                (
+                    range: HistoricalSearchService.historyDayRange(from: response),
+                    fallbackNextUpdateAt: Self.fallbackNextUpdateAt(from: now)
+                )
+            }
+            guard let range = validated.range else {
                 return .skippedInvalidPeriod
             }
-            let nextUpdateAt = response.nextUpdateAt ?? Self.fallbackNextUpdateAt(from: now)
+            return .ready(SudmonitorHistoryFetchedDat(
+                periodStartDay: range.start,
+                periodEndDay: range.end,
+                nextUpdateAt: response.nextUpdateAt ?? validated.fallbackNextUpdateAt,
+                rawDatBytes: response.bytes
+            ))
+        }
+    }
+
+    /// 取得段階の結果を damId ごとに1件へ上書き保存します。
+    ///
+    /// 保存は damId で fetch → delete → insert + `context.save()` の all-or-nothing で行います。
+    /// メインキューに紐づく `ModelContext` を扱うため MainActor 上でのみ呼び出します。
+    /// - Parameters:
+    ///   - preparation: 取得段階の結果。
+    ///   - damId: 対象ダムの観測所ID。
+    ///   - context: SwiftData のモデルコンテキスト。
+    ///   - now: 保存日時。
+    /// - Returns: 取得・保存結果。
+    internal func store(
+        _ preparation: SudmonitorHistoryFetchPreparation,
+        damId: String,
+        context: ModelContext,
+        now: Date
+    ) -> SudmonitorHistoryFetchOutcome {
+        switch preparation {
+        case .gateDisabled:
+            return .gateDisabled
+        case .skippedNotFound:
+            return .skippedNotFound
+        case .skippedInvalidPeriod:
+            return .skippedInvalidPeriod
+        case .failure(let error):
+            return .failure(error)
+        case .ready(let fetched):
             do {
                 let existing = try context.fetch(FetchDescriptor<SudmonitorHistoryRecord>())
                 existing.filter { $0.damId == damId }.forEach { context.delete($0) }
                 context.insert(SudmonitorHistoryRecord(
                     damId: damId,
-                    periodStartDay: startDay,
-                    periodEndDay: endDay,
+                    periodStartDay: fetched.periodStartDay,
+                    periodEndDay: fetched.periodEndDay,
                     fetchedAt: now,
-                    nextUpdateAt: nextUpdateAt,
-                    rawDatBytes: response.bytes
+                    nextUpdateAt: fetched.nextUpdateAt,
+                    rawDatBytes: fetched.rawDatBytes
                 ))
                 try context.save()
                 return .stored
@@ -236,52 +300,45 @@ internal struct SudmonitorHistoryService {
         return String(format: "%04d%02d%02d", year, month, day)
     }
 
-    /// 自動更新設定の間隔に連動して日次過去データを取得します。
+    /// 保存済みデータの状態から日次過去データの自動取得が必要かどうかを判定します。
     ///
-    /// 間隔が 1時間/12時間 の場合は、保存済み `nextUpdateAt` が明けていない限り skip します
-    /// (結果的に最大 1 日 1 回の更新になります)。間隔が 1日/1週間 の場合は設定どおり実行します。
+    /// 保存済みレコードの最終観測行が JST 当日 00:00(前日 `24:00`)へ正規化でき、かつ
+    /// 貯水率が有効な場合のみ取得不要(`false`)を返します。行未保存・最終行が当日 00:00 でない・
+    /// 貯水率欠測(性状欄異常を含む)・パース不能の場合は取得が必要(`true`)です。
     /// - Parameters:
-    ///   - interval: 自動更新の間隔設定。
     ///   - damId: 対象ダムの観測所ID。
     ///   - context: SwiftData のモデルコンテキスト。
-    ///   - historicalDataSource: 過去データ検索のデータソース設定(機能ゲート判定)。
-    ///   - now: 基準日時(既定は現在日時)。
-    /// - Returns: 取得・保存結果。
-    internal func autoFetch(
-        interval: AutoUpdateInterval,
-        damId: String,
-        context: ModelContext,
-        historicalDataSource: RealtimeDataSource,
-        now: Date = Date()
-    ) async -> SudmonitorHistoryFetchOutcome {
-        guard Self.isGateEnabled(historicalDataSource: historicalDataSource) else {
-            return .gateDisabled
+    ///   - now: 基準日時。
+    /// - Returns: 取得が必要な場合は `true`。
+    internal func shouldAutoFetch(damId: String, context: ModelContext, now: Date) -> Bool {
+        guard let saved = record(damId: damId, context: context) else { return true }
+        guard let rows = try? MlitDamParser().parseHistoricalDat(
+            saved.rawDatBytes,
+            damConfigId: damId,
+            startDate: "",
+            endDate: ""
+        ).1,
+            let last = rows.last,
+            let millis = TimeFormatters.millisIfValid(fromDamTime: last.time) else {
+            return true
         }
-        switch interval {
-        case .oneHour, .twelveHours:
-            if let saved = record(damId: damId, context: context),
-               let nextUpdateAt = saved.nextUpdateAt,
-               nextUpdateAt > now {
-                return .skippedByCooldown
-            }
-        case .oneDay, .oneWeek:
-            break
+        let lastDate = Date(timeIntervalSince1970: millis / 1000)
+        let calendar = Calendar.jst
+        guard calendar.isDate(lastDate, inSameDayAs: now),
+              calendar.component(.hour, from: lastDate) == 0,
+              calendar.component(.minute, from: lastDate) == 0 else {
+            return true
         }
-        return await fetchAndStore(
-            damId: damId,
-            context: context,
-            historicalDataSource: historicalDataSource,
-            now: now
-        )
+        return last.storagePercentage == nil
     }
 
-    /// 手動更新のクールダウン終了時刻(保存済み `nextUpdateAt`)を取得します。
+    /// 手動更新のクールダウン終了時刻(最終成功取得時刻 + 1時間)を取得します。
     /// - Parameters:
     ///   - damId: 対象ダムの観測所ID。
     ///   - context: SwiftData のモデルコンテキスト。
     /// - Returns: クールダウン終了時刻。レコード未保存の場合は nil(= いつでも更新可能)。
     internal func manualRefreshAvailableAt(damId: String, context: ModelContext) -> Date? {
-        record(damId: damId, context: context)?.nextUpdateAt
+        record(damId: damId, context: context)?.fetchedAt.addingTimeInterval(3600)
     }
 
     /// ウィジェット側がバックグラウンドで取得した日次過去データブリッジを、アプリの SwiftData レコードへ取り込みます。
@@ -318,7 +375,7 @@ internal struct SudmonitorHistoryService {
     /// 機能ゲート(過去データの取得ソースが sudmonitor)が有効かどうかを判定します。
     /// - Parameter historicalDataSource: 過去データ検索のデータソース設定。
     /// - Returns: 有効な場合は `true`。
-    internal static func isGateEnabled(historicalDataSource: RealtimeDataSource) -> Bool {
+    internal nonisolated static func isGateEnabled(historicalDataSource: RealtimeDataSource) -> Bool {
         historicalDataSource == .sudmonitor
     }
 

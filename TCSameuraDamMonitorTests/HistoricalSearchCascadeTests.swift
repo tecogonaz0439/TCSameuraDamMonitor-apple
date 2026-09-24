@@ -522,6 +522,111 @@ struct HistoricalSearchCascadeTests {
         ))
     }
 
+    @Test func coverageIntervalRejectsInvalid24HourNotation() throws {
+        let requiredStart = try jstDate(year: 2026, month: 7, day: 1)
+        let requiredEnd = try jstDate(year: 2026, month: 8, day: 1)
+        let invalidValues = [
+            "2026-07-31T24:01+09:00",
+            "2026-07-31T24:00:01+09:00",
+            "2026-07-31T24:00:00.5+09:00",
+            "2026-07-31T25:00+09:00",
+            "2026-02-30T24:00:00+09:00",
+            "2026-07-31T24:00:00",
+        ]
+
+        for until in invalidValues {
+            let response = SudmonitorHistoricalResponse(
+                bytes: Data(),
+                damIdHeader: nil,
+                since: "2026-07-01T01:00:00+09:00",
+                until: until
+            )
+            #expect(HistoricalSearchService.coverageInterval(
+                from: response,
+                requiredStart: requiredStart,
+                requiredEnd: requiredEnd
+            ) == nil)
+        }
+    }
+
+    @Test func historyDayRangeParsesSecondlessPeriodHeaders() {
+        let range = HistoricalSearchService.historyDayRange(
+            since: "2026-07-01T01:00+09:00",
+            until: "2026-07-31T23:00+09:00"
+        )
+
+        #expect(range?.start == "20260701")
+        #expect(range?.end == "20260731")
+    }
+
+    @Test func historyDayRangeParsesSecondless24HourEndNotation() {
+        let range = HistoricalSearchService.historyDayRange(
+            since: "2026-07-01T01:00+09:00",
+            until: "2026-07-31T24:00+09:00"
+        )
+
+        #expect(range?.start == "20260701")
+        #expect(range?.end == "20260731")
+    }
+
+    @Test func historyDayRangeRejectsInvalid24HourNotation() {
+        let invalidValues = [
+            "2026-07-31T24:01+09:00",
+            "2026-07-31T24:00:01+09:00",
+            "2026-07-31T24:00:00.5+09:00",
+            "2026-07-31T25:00+09:00",
+            "2026-02-30T24:00:00+09:00",
+            "2026-07-31T24:00:00",
+        ]
+
+        for until in invalidValues {
+            #expect(HistoricalSearchService.historyDayRange(
+                since: "2026-07-01T01:00:00+09:00",
+                until: until
+            ) == nil)
+        }
+    }
+
+    @Test func coverageIntervalHandlesSecondlessPeriodHeaders() throws {
+        let response = SudmonitorHistoricalResponse(
+            bytes: Data(),
+            damIdHeader: nil,
+            since: "2026-07-01T01:00+09:00",
+            until: "2026-07-10T23:00+09:00"
+        )
+
+        let interval = HistoricalSearchService.coverageInterval(
+            from: response,
+            requiredStart: try jstDate(year: 2026, month: 7, day: 1),
+            requiredEnd: try jstDate(year: 2026, month: 8, day: 1)
+        )
+
+        #expect(interval == DateInterval(
+            start: try jstDate(year: 2026, month: 7, day: 1),
+            end: try jstDate(year: 2026, month: 7, day: 11)
+        ))
+    }
+
+    @Test func coverageIntervalHandlesSecondless24HourEndNotation() throws {
+        let response = SudmonitorHistoricalResponse(
+            bytes: Data(),
+            damIdHeader: nil,
+            since: "2026-07-01T01:00+09:00",
+            until: "2026-07-31T24:00+09:00"
+        )
+
+        let interval = HistoricalSearchService.coverageInterval(
+            from: response,
+            requiredStart: try jstDate(year: 2026, month: 7, day: 1),
+            requiredEnd: try jstDate(year: 2026, month: 8, day: 1)
+        )
+
+        #expect(interval == DateInterval(
+            start: try jstDate(year: 2026, month: 7, day: 1),
+            end: try jstDate(year: 2026, month: 8, day: 1)
+        ))
+    }
+
     @Test func coverageIntervalMidnightUntilMeansPreviousDay() throws {
         let response = SudmonitorHistoricalResponse(
             bytes: Data(),

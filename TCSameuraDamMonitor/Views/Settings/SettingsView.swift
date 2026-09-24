@@ -184,10 +184,6 @@ struct SettingsView: View {
                             Text(interval.localizedLabel).tag(interval)
                         }
                     }
-                } footer: {
-                    if appModel.settings.autoUpdateInterval == .oneHour || appModel.settings.autoUpdateInterval == .twelveHours {
-                        Text(AppText.settingsAutoUpdateIntervalDailyHistoryFooter)
-                    }
                 }
             }
 
@@ -382,6 +378,7 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings.damSelection")
                 .sheet(isPresented: $showDamSelectionSheet) {
                     DamSelectionSheet(appModel: appModel, isPresented: $showDamSelectionSheet)
+                        .recoversSheetContentOnForegroundReturn()
                 }
             } footer: {
                 if appModel.settings.realtimeDataSource == .sudmonitor {
@@ -666,6 +663,7 @@ struct MessageEditButton: View {
                 isPresented: $showDialog,
                 onSave: onSave
             )
+            .recoversSheetContentOnForegroundReturn()
         }
     }
 }
@@ -904,6 +902,7 @@ struct AutoUpdateNextSettingItem: View {
         .buttonStyle(.plain)
         .sheet(isPresented: $showDialog) {
             AutoUpdateNextSheet(appModel: appModel, isPresented: $showDialog)
+                .recoversSheetContentOnForegroundReturn()
         }
     }
 }

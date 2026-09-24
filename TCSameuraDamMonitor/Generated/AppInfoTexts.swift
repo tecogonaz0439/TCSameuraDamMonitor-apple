@@ -19,7 +19,7 @@ enum AppInfoTexts {
     """#
 
     static let termsOfUse = #"""
-    **Last updated: September 5, 2026**
+    **Last updated: September 24, 2026**
 
     > This English version is a translation of the Japanese original version. The Japanese original is the authoritative text. If there is any discrepancy or conflict between this English translation and the Japanese original, the Japanese original prevails.
 
@@ -49,12 +49,11 @@ enum AppInfoTexts {
 
     ## 4. Distribution Sources
 
-    The official distribution sources for the App are the Releases pages of the development repositories, **Codeberg** (primary) and **GitHub** (mirror), and Apple's **TestFlight** service. Releases pages distribute ZIP archives containing the notarized macOS `.app`, while beta builds for iOS, iPadOS, and macOS are distributed through TestFlight.
+    The official distribution sources for the App are **GitHub Releases** and Apple's **TestFlight** service. GitHub Releases provides a ZIP archive containing the notarized macOS app. TestFlight provides beta builds for iOS, iPadOS, and macOS.
 
-    - Codeberg Releases: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple/releases
     - GitHub Releases: https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases
 
-    General availability of the iOS, iPadOS, and macOS versions on the Apple App Store is planned for a later date.
+    General availability of the iOS, iPadOS, and macOS versions on the Apple App Store is planned for a later date. AltStore PAL is a future distribution candidate for the iOS app in Japan, but the App is not currently distributed through it. Distribution in Japan through an alternative app marketplace requires iOS 26.2 or later. Apple's regional requirements state that apps distributed through a marketplace in Japan must support iPhone; iPadOS marketplace distribution is listed for the EU. The macOS app is also outside the scope of this marketplace.
 
     If you obtain the App through TestFlight or the future Apple App Store, Apple's TestFlight and App Store terms, Apple Developer Program License Agreement, and other applicable Apple terms govern matters relating to acquisition, beta testing, distribution, updates, listing, suspension, refunds, and similar Apple-platform procedures. If these Terms conflict with Apple's terms regarding those procedures or functions, Apple's terms prevail for that scope.
 
@@ -98,7 +97,7 @@ enum AppInfoTexts {
 
     ## 8. External Services and Links
 
-    The App may link to, launch, or share content with external services or external apps, including MLIT-related pages, map apps, browsers, OS sharing features, Codeberg, and GitHub.
+    The App may link to, launch, or share content with external services or external apps, including MLIT-related pages, map apps, browsers, OS sharing features, and GitHub.
 
     Use of external services or external apps is subject to the terms, privacy policies, and usage conditions of each provider. We are not responsible for the content, availability, accuracy, safety, changes, suspension, or results of use of external services or external apps.
 
@@ -109,7 +108,7 @@ enum AppInfoTexts {
     You must not engage in the following acts.
 
     - Acts that violate laws, public order and morals, third-party rights, these Terms, or the terms of distribution sources
-    - Acts that impose excessive load, cause failures, perform unauthorized access, or interfere with the App, MLIT public servers, the cache server, Codeberg, GitHub, external services, third-party devices, or networks
+    - Acts that impose excessive load, cause failures, perform unauthorized access, or interfere with the App, MLIT public servers, the cache server, GitHub, external services, third-party devices, or networks
     - Acts that mislead users into believing that the App or a modified version is an official version, approved version, or sponsored version of MLIT or any other third party
     - Acts of using or distributing the App or a modified version for malware, unauthorized code, phishing, fraud, impersonation, false display, misleading display, or deception of users
     - Acts of presenting displayed data from the App as if it were official information and causing third parties to make incorrect important decisions
@@ -119,7 +118,7 @@ enum AppInfoTexts {
 
     We may change the App's features, specifications, displays, supported OS versions, supported devices, distribution methods, distribution sources, repositories, documentation, Privacy Policy, or these Terms as necessary.
 
-    We may suspend or terminate distribution, updates, provision, or support of the App due to changes in MLIT public data specifications, suspension of external services, changes in policies or terms of distribution platforms such as Codeberg/GitHub, changes in Apple App Store or Apple Developer Program policies, security reasons, maintenance, legal requirements, or other unavoidable circumstances.
+    We may suspend or terminate distribution, updates, provision, or support of the App due to changes in MLIT public data specifications, suspension of external services, changes in policies or terms of distribution platforms such as GitHub, changes in Apple App Store or Apple Developer Program policies, security reasons, maintenance, legal requirements, or other unavoidable circumstances.
 
     If these Terms are changed, the revised Terms take effect when published in the repository, in the App, on a distribution page, or by another method we deem appropriate. If you use the App after the change, you are deemed to have agreed to the revised Terms.
 
@@ -147,19 +146,19 @@ enum AppInfoTexts {
 
     ## 15. Contact
 
-    As a general rule, inquiries regarding these Terms, the App, the Privacy Policy, or licenses should be made through Issues in the source code repository (Codeberg).
+    As a general rule, inquiries regarding these Terms, the App, the Privacy Policy, or licenses should be submitted through [Issues in the GitHub repository](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/issues).
 
-    - Codeberg: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple
+    Issues are public. Do not include personal or confidential information.
 
     We do not guarantee individual responses, investigations, fixes, updates, or support for all inquiries.
     """#
 
     static let termsOfUseJa = #"""
-    **最終更新日: 2026-09-05**
+    **最終更新日: 2026-09-24**
 
     ## 1. 適用
 
-    本利用規約（以下「本規約」）は、**早明浦ダム 貯水率モニタ**(以下「本アプリ」)の利用条件を定めるものです。
+    本利用規約（以下「本規約」）は、**早明浦ダム 貯水率モニタ**（以下「本アプリ」）の利用条件を定めます。
 
     利用者は、本アプリをインストール、起動、利用、または公式配布元から取得した時点で、本規約に同意したものとみなされます。本規約に同意しない場合は、本アプリを利用しないでください。
 
@@ -183,14 +182,13 @@ enum AppInfoTexts {
 
     ## 4. 配布元
 
-    本アプリの公式配布元は、開発用リポジトリである **Codeberg**（メイン）および **GitHub**（ミラー）の Releases ページと、Apple の **TestFlight** です。Releases ページでは公証済みの macOS `.app` を収めた ZIP ファイルを直接配布し、TestFlight では iOS / iPadOS / macOS 向けのベータビルドを配布します。
+    本アプリの公式配布元は、GitHub の Releases ページと Apple の TestFlight です。GitHub Releases では公証済み macOS アプリを収めた ZIP ファイルを配布し、TestFlight では iOS / iPadOS / macOS 向けのベータビルドを配布しています。
 
-    - Codeberg Releases: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple/releases
     - GitHub Releases: https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases
 
-    iOS / iPadOS / macOS アプリの Apple App Store での一般公開は後日別途実施する予定です。
+    App Store での一般公開は後日予定しています。AltStore PAL は日本での iOS 版配布の将来候補ですが、現時点では同ストアで配布していません。日本で代替アプリマーケットプレイスから配布するには iOS 26.2 以降が必要です。Apple の地域別要件では、日本向け代替配信アプリは iPhone をサポートする必要があり、iPadOS アプリの代替配信は EU 向け要件として記載されています。macOS 版も対象外です。
 
-    TestFlight または将来の Apple App Store から本アプリを取得する場合、Apple の TestFlight・App Store 利用規約、Apple Developer Program License Agreement、その他適用される Apple の条件が、取得、ベータテスト、配布、更新、掲載、停止、返金等の Apple プラットフォーム上の手続きに適用されます。本規約と Apple の条件がこれらの手続きまたは機能に関して矛盾する場合、その範囲では Apple の条件が優先されます。
+    TestFlight または将来のアプリストアから本アプリを取得する場合、各ストアの利用規約、Apple Developer Program License Agreement、およびその他の適用条件が、取得、配布、更新、掲載、停止などの手続きに適用されます。本規約とストアの条件が手続きや機能について矛盾する場合、その範囲ではストアの条件が優先されます。
 
     当方は、公式配布チャネル以外で第三者が入手、改変、再ビルド、再配布した版について、その安全性、完全性、真正性、動作、更新、サポートを保証しません。
 
@@ -232,7 +230,7 @@ enum AppInfoTexts {
 
     ## 8. 外部サービスとリンク
 
-    本アプリは、国土交通省関連ページ、地図アプリ、ブラウザ、OSの共有機能、Codeberg、GitHub等の外部サービスまたは外部アプリへのリンク、起動、共有を行う場合があります。
+    本アプリは、国土交通省関連ページ、地図アプリ、ブラウザ、OS の共有機能、GitHub などの外部サービスや外部アプリへのリンク、起動、共有を行う場合があります。
 
     外部サービスまたは外部アプリの利用には、各提供者の規約、プライバシーポリシー、利用条件が適用されます。当方は、外部サービスまたは外部アプリの内容、可用性、正確性、安全性、変更、停止、利用結果について責任を負いません。
 
@@ -243,7 +241,7 @@ enum AppInfoTexts {
     利用者は、次の行為を行ってはなりません。
 
     - 法令、公序良俗、第三者の権利、本規約、配布元の規約に違反する行為
-    - 本アプリ、国土交通省の公開サーバ、キャッシュサーバ、Codeberg、GitHub、外部サービス、第三者の端末またはネットワークに過度の負荷、障害、不正アクセス、妨害を与える行為
+    - 本アプリ、国土交通省の公開サーバ、キャッシュサーバ、GitHub、外部サービス、第三者の端末またはネットワークに過度の負荷、障害、不正アクセス、妨害を与える行為
     - 本アプリまたは改変版を、国土交通省、またはその他第三者の公式版、承認版、後援版であると誤認させる行為
     - マルウェア、不正コード、フィッシング、詐欺、なりすまし、虚偽表示、誤認表示、利用者を欺く目的で本アプリまたは改変版を利用または配布する行為
     - 本アプリの表示データを、公式情報であるかのように提示し、第三者の重要判断を誤らせる行為
@@ -253,7 +251,7 @@ enum AppInfoTexts {
 
     当方は、必要に応じて、本アプリの機能、仕様、表示、対応OS、対応端末、配布方法、配布元、リポジトリ、ドキュメント、プライバシーポリシー、本規約を変更することがあります。
 
-    当方は、国土交通省の公開データ仕様の変更、外部サービスの停止、本アプリを配布する Codeberg/GitHub 等のプラットフォームの規約・ポリシー変更、Apple App Store または Apple Developer Program のポリシー変更、セキュリティ上の理由、保守、法令上の要請、その他やむを得ない事情により、本アプリの配布、更新、提供、サポートを中断または終了することがあります。
+    当方は、国土交通省の公開データ仕様の変更、外部サービスの停止、GitHub や各アプリストアの規約・ポリシー変更、Apple Developer Program のポリシー変更、セキュリティ上の理由、保守、法令上の要請、その他やむを得ない事情により、本アプリの配布、更新、提供、サポートを中断または終了することがあります。
 
     本規約を変更した場合、変更後の規約は、リポジトリ、アプリ内表示、配布ページ、または当方が適切と判断する方法で公開した時点から効力を生じます。変更後に本アプリを利用した場合、利用者は変更後の規約に同意したものとみなされます。
 
@@ -281,15 +279,13 @@ enum AppInfoTexts {
 
     ## 15. お問い合わせ
 
-    本規約、本アプリ、プライバシーポリシー、ライセンスに関するお問い合わせは、原則としてソースコードリポジトリ(Codeberg)のIssueにて行ってください。
-
-    - Codeberg: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple
+    本規約、本アプリ、プライバシーポリシー、ライセンスに関するお問い合わせは、[GitHub リポジトリの Issue](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/issues) からお寄せください。Issue は公開されるため、個人情報や機密情報を記載しないでください。
 
     当方は、すべてのお問い合わせへの個別回答、調査、修正、更新、サポート提供を保証しません。
     """#
 
     static let privacyPolicy = #"""
-    **Last updated: September 5, 2026**
+    **Last updated: September 24, 2026**
 
     > This English version is a translation of the Japanese original version. The Japanese original is the authoritative text. If there is any discrepancy or conflict between this English translation and the Japanese original, the Japanese original prevails.
 
@@ -325,23 +321,21 @@ enum AppInfoTexts {
 
     This policy will be updated if data practices change. The update date and changes will be reflected in the published policy and source code repository. Notice will also be provided in the App or through the distribution service when appropriate.
 
-    Questions may be submitted through an Issue in the following Codeberg repository. Issues are public, so do not include personal or confidential information. If such information is necessary, first ask how to make contact without including it.
-
-    - Codeberg: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple
+    Questions may be submitted through [Issues in the GitHub repository](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/issues). Issues are public, so do not include personal or confidential information. If such information is necessary, first ask how to make contact without including it.
     """#
 
     static let privacyPolicyJa = #"""
-    **最終更新日: 2026-09-05**
+    **最終更新日: 2026-09-24**
 
     ## 概要
 
     **早明浦ダム 貯水率モニタ**（以下「本アプリ」）は、国土交通省が公開するダム諸量データを表示する iOS / iPadOS / macOS アプリです。本ポリシーは、本プロジェクト開発者が公式に配布する本アプリに適用され、Widget による処理も対象とします。
 
-    本アプリはアカウント登録や氏名等の入力を求めず、位置情報 API、広告 ID その他の永続的な端末識別子を取得しません。広告、利用状況分析または本プロジェクト独自のクラッシュ報告のための SDK、サーバ側の利用者プロフィールおよび広告目的の追跡もありません。ただし、データ取得時の通信情報は送信先で処理されます。
+    本アプリは、アカウント登録や氏名などの入力を求めず、位置情報 API、広告 ID、その他の永続的な端末識別子を取得しません。広告や利用状況を分析する SDK、本プロジェクト独自のクラッシュ報告 SDK、サーバ側の利用者プロフィールもありません。データ取得時の通信情報は、接続先で処理される場合があります。
 
     ## 端末内で扱うデータ
 
-    本アプリは、リアルタイムおよび過去のダム諸量データ、ユーザー設定、デバッグログをアプリの保存領域に保存します。これらを本プロジェクトの外部サーバへ自動送信したり、独自のクラウド同期に使用したりすることはありません。
+    本アプリは、リアルタイムと過去のダム諸量データ、ユーザー設定、デバッグログをアプリの保存領域に保存します。これらを本プロジェクトのサーバへ自動送信したり、独自のクラウド同期に使用したりしません。
 
     一部のデータは、OS のバックアップ・移行機能または利用者による共有・書き出しによって端末外へ移る場合があります。
 
@@ -351,23 +345,21 @@ enum AppInfoTexts {
 
     ダム諸量データの出所は国土交通省の水文水質データベースです。本アプリと Widget は、既定では本プロジェクト開発者が運営するキャッシュサーバ（https://sudmonitor.kusugami-lab.net）へ接続し、設定により国土交通省の配信元サーバ（https://www1.river.go.jp）から直接取得することもできます。
 
-    いずれの送信先でも、送信元 IP アドレス、日時、要求したダムや期間、Apple 版であることやアプリのバージョン等の通信情報が自動的に処理される場合があります。キャッシュサーバでは、Cloudflare と本プロジェクトがこれらをデータ提供、安全確保、不正利用防止および障害調査にのみ使用し、広告、利用状況分析または追跡には使用しません。氏名、メールアドレス、広告 ID、端末の位置情報 API から取得した位置情報、設定、保存済みデータおよびデバッグログは、いずれの送信先にも送信しません。国土交通省のサーバにおける通信情報の取扱いは、同省の方針に従い、本プロジェクトの管理対象外です。
+    送信先は、送信元 IP アドレス、アクセス日時、要求したダムや期間、アプリの種類・バージョンなどの通信情報を処理する場合があります。Cloudflare と本プロジェクトは、キャッシュサーバに届いた通信情報をデータ提供、安全確保、不正利用防止、障害調査のために使用し、広告、利用状況分析、追跡には使用しません。氏名、メールアドレス、広告 ID、位置情報、設定、保存済みデータ、デバッグログは、いずれの送信先にも送信しません。国土交通省サーバにおける通信情報の取扱いは、同省の方針に従い、本プロジェクトの管理対象外です。
 
-    キャッシュサーバには Cloudflare を利用し、通信情報の処理には [Cloudflare Privacy Policy](https://www.cloudflare.com/policies/privacy/) が適用されます。TestFlight 版では、Apple が診断情報、クラッシュ、セッション、任意のフィードバックやスクリーンショットを処理して開発者へ提供する場合があり、[Apple Privacy Policy](https://www.apple.com/legal/privacy/) が適用されます。
+    キャッシュサーバは Cloudflare 上で稼働し、通信情報には [Cloudflare Privacy Policy](https://www.cloudflare.com/policies/privacy/) が適用されます。TestFlight 版では、Apple が診断情報、クラッシュ、セッション、利用者が任意で送信したフィードバックやスクリーンショットを処理し、開発者へ提供する場合があります。Apple の取扱いには [Apple Privacy Policy](https://www.apple.com/legal/privacy/) が適用されます。
 
     ## 保持期間と安全管理
 
-    本アプリと Widget は HTTPS で通信します。Cloudflare の運用ログ等に通信情報が含まれる場合、保持期間は現在最大 7 日です。本プロジェクトは通信情報を氏名等と結び付けず、長期保存用のコピーを作成しません。
+    本アプリと Widget は HTTPS で通信します。Cloudflare の運用ログなどに含まれる通信情報は、現在、最大 7 日間保持される場合があります。本プロジェクトは通信情報を氏名などと結び付けず、長期保存用のコピーも作成しません。
 
     アカウントおよびサーバ側の利用者プロフィールがないため、アカウント削除の手続はありません。通信情報はアカウントに関連付けられず、特定の利用者に対応する情報を識別できない場合があります。端末内データの削除方法は前節を参照してください。
 
     ## 本ポリシーの変更とお問い合わせ
 
-    データの取扱いが変わる場合は本ポリシーを更新し、更新日と変更内容を公開中のポリシーおよびソースコードリポジトリへ反映します。必要に応じてアプリ内または配布サービス上でも案内します。
+    データの取扱いを変更する場合は本ポリシーを更新し、更新日と変更内容をポリシーおよびソースコードリポジトリに反映します。必要に応じて、アプリ内または配布サービス上でも案内します。
 
-    お問い合わせは次の Codeberg リポジトリの Issue で受け付けます。Issue は公開されるため、個人情報や機密情報を記載しないでください。必要な場合は、まずそれらを含めずに連絡方法をお問い合わせください。
-
-    - Codeberg: https://codeberg.org/tecogonaz0439/TCSameuraDamMonitor-apple
+    お問い合わせは、[GitHub リポジトリの Issue](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/issues) からお寄せください。Issue は公開されるため、個人情報や機密情報を記載しないでください。連絡方法について質問する場合も、まず個人情報や機密情報を含めずに投稿してください。
     """#
 
     static let ossLicense = #"""

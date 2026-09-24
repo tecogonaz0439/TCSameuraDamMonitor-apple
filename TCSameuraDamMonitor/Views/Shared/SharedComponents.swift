@@ -838,6 +838,45 @@ extension View {
     }
 }
 
+/// 提示中のシート内容を再構築する世代値を、ビュー階層へ配布するためのキー。
+private struct SheetRecoveryGenerationKey: EnvironmentKey {
+    /// 未設定時の世代値。
+    static let defaultValue = 0
+}
+
+extension EnvironmentValues {
+    /// 提示中のシート内容を再構築する世代値。
+    ///
+    /// 長時間のバックグラウンドから復帰したときに増加する。この値へ追従させたシート内容は、
+    /// 値が変わるたびに新しいビュー identity で作り直される。
+    var sheetRecoveryGeneration: Int {
+        get { self[SheetRecoveryGenerationKey.self] }
+        set { self[SheetRecoveryGenerationKey.self] = newValue }
+    }
+}
+
+extension View {
+    /// シート内容を、シート再構築世代の変化に応じて作り直します。
+    ///
+    /// iOS では、長時間サスペンドされた状態で提示中のシートが、復帰後に内容を描画できずに
+    /// 空白のままになることがある。シートを閉じて開き直すと復帰するため、前面復帰時に
+    /// 内容のビュー identity を変えて作り直す。
+    /// - Returns: シート再構築世代へ追従するビュー。
+    func recoversSheetContentOnForegroundReturn() -> some View {
+        modifier(SheetContentRecoveryModifier())
+    }
+}
+
+/// `sheetRecoveryGeneration` に応じてシート内容の identity を切り替えるモディファイア。
+private struct SheetContentRecoveryModifier: ViewModifier {
+    /// シート内容の再構築世代。
+    @Environment(\.sheetRecoveryGeneration) private var generation
+
+    func body(content: Content) -> some View {
+        content.id(generation)
+    }
+}
+
 /// スナックバーバナーを表示し、自動的に消去するビューモディファイア。
 private struct SnackbarMessageModifier: ViewModifier {
     /// 現在のカラースキーム。

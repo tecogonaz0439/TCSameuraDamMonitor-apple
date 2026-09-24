@@ -180,23 +180,6 @@
         }
       }
     },
-    "appInfo.codeberg" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repository (Codeberg)"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "リポジトリ(Codeberg)"
-          }
-        }
-      }
-    },
     "appInfo.github" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4022,23 +4005,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自動更新 間隔"
-          }
-        }
-      }
-    },
-    "settings.autoUpdateIntervalDailyHistoryFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The daily historical data auto-update interval is 1 day."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去データ(日次)の自動更新間隔は1日になります。"
           }
         }
       }

@@ -472,33 +472,62 @@ internal struct HistoricalSearchService {
 
     /// sudmonitor の期間ヘッダー値(ISO8601・JST)をパースします。
     ///
-    /// `T24:` 表記(例: `2026-07-31T24:00:00+09:00`)は日付を翌日に進めて `T00:` へ正規化してからパースします。
-    /// パース失敗は nil を返します(小数秒ありの ISO8601 形式もフォールバックで試します)。
+    /// `T24:00` と `T24:00:00` だけを翌日00:00へ正規化します。契約外の `T24:` 表記、
+    /// 不正な日付、offset のない値は nil を返します。契約は `docs/common/data-source.md` を参照してください。
     private static func parseHistoryPeriod(_ value: String) -> Date? {
-        let normalized: String
-        if value.contains("T24:") {
-            let parts = value.split(separator: "T24:", maxSplits: 1, omittingEmptySubsequences: false)
-            guard parts.count == 2,
-                  let day = historyPeriodDayFormatter.date(from: String(parts[0])),
-                  let nextDay = Calendar.jst.date(byAdding: .day, value: 1, to: day) else {
-                return nil
-            }
-            normalized = "\(historyPeriodDayFormatter.string(from: nextDay))T00:\(parts[1])"
-        } else {
-            normalized = value
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let marker = trimmed.range(of: "T24:") else {
+            return parseIso8601(trimmed)
         }
-        if let date = TimeFormatters.iso8601JST.date(from: normalized) {
+        guard marker.lowerBound != trimmed.startIndex else { return nil }
+
+        let dayText = String(trimmed[..<marker.lowerBound])
+        let rest = String(trimmed[marker.upperBound...])
+        guard let offsetIndex = rest.firstIndex(where: { $0 == "Z" || $0 == "+" || $0 == "-" }) else {
+            return nil
+        }
+        let timePart = String(rest[..<offsetIndex])
+        let offsetPart = String(rest[offsetIndex...])
+        guard timePart == "00" || timePart == "00:00",
+              let day = strictJstDay(dayText),
+              let nextDay = Calendar.jst.date(byAdding: .day, value: 1, to: day) else {
+            return nil
+        }
+
+        let timeSuffix = timePart == "00" ? "" : ":00"
+        let normalized = "\(historyPeriodDayFormatter.string(from: nextDay))T00:00\(timeSuffix)\(offsetPart)"
+        return parseIso8601(normalized)
+    }
+
+    /// 秒・小数秒の有無に対応するISO8601フォーマッタで値をパースします。
+    private static func parseIso8601(_ value: String) -> Date? {
+        if let date = TimeFormatters.iso8601JST.date(from: value) {
             return date
         }
-        return iso8601FractionalSeconds.date(from: normalized)
+        if let date = iso8601FractionalSeconds.date(from: value) {
+            return date
+        }
+        return TimeFormatters.iso8601JSTNoSeconds.date(from: value)
+    }
+
+    /// 期間ヘッダーの日付部分が実在する `yyyy-MM-dd` であることを検証します。
+    private static func strictJstDay(_ text: String) -> Date? {
+        guard text.range(of: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", options: .regularExpression) != nil,
+              let day = historyPeriodDayFormatter.date(from: text),
+              historyPeriodDayFormatter.string(from: day) == text else {
+            return nil
+        }
+        return day
     }
 
     /// 期間ヘッダーの日付部分 (yyyy-MM-dd) 用フォーマッタ。
     private static let historyPeriodDayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
         formatter.dateFormat = "yyyy-MM-dd"
+        formatter.isLenient = false
         return formatter
     }()
 
