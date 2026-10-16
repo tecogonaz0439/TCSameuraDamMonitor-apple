@@ -18,6 +18,10 @@
 - **自動更新・通知** — バックグラウンドでのリアルタイムデータ取得と貯水率変化通知
 - **多言語対応** — 日本語・英語
 
+## TestFlightベータテストへの参加 (iOS / iPadOS / macOS)
+
+[TestFlightのパブリックリンク](https://testflight.apple.com/join/rczGbqTJ)からベータテストに参加できます。テストする端末でリンクを開き、画面の案内に従ってTestFlightをインストールし、ベータテストへの参加とアプリのインストールを進めてください。
+
 ## 入手方法 (macOS)
 
 1. [GitHub Releases](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases) から最新の macOS 用 ZIP アーカイブをダウンロードします。

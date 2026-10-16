@@ -18,6 +18,10 @@ This app is optimized for udon noodle lovers in Kagawa Prefecture who worry abou
 - **Auto-update & notifications** — Background real-time data fetching and water storage rate change notifications
 - **Multi-language support** — Japanese and English
 
+## Join the TestFlight Beta (iOS, iPadOS, macOS)
+
+You can join the beta test through the [public TestFlight invitation link](https://testflight.apple.com/join/rczGbqTJ). Open the link on the device you want to use for testing, then follow the instructions to install TestFlight, join the beta, and install the app.
+
 ## How to Obtain (macOS)
 
 1. Download the latest archive file such as `SameuraDamMonitor-macOS.zip` from [GitHub Releases](https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases).

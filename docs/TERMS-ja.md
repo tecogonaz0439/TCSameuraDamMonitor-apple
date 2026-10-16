@@ -1,6 +1,6 @@
 # 利用規約
 
-**最終更新日: 2026-09-24**
+**最終更新日: 2026-10-16**
 
 ## 1. 適用
 
@@ -31,6 +31,7 @@
 本アプリの公式配布元は、GitHub の Releases ページと Apple の TestFlight です。GitHub Releases では公証済み macOS アプリを収めた ZIP ファイルを配布し、TestFlight では iOS / iPadOS / macOS 向けのベータビルドを配布しています。
 
 - GitHub Releases: https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases
+- TestFlight公開ベータ: https://testflight.apple.com/join/rczGbqTJ
 
 App Store での一般公開は後日予定しています。AltStore PAL は日本での iOS 版配布の将来候補ですが、現時点では同ストアで配布していません。日本で代替アプリマーケットプレイスから配布するには iOS 26.2 以降が必要です。Apple の地域別要件では、日本向け代替配信アプリは iPhone をサポートする必要があり、iPadOS アプリの代替配信は EU 向け要件として記載されています。macOS 版も対象外です。
 

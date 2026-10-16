@@ -19,7 +19,7 @@ enum AppInfoTexts {
     """#
 
     static let termsOfUse = #"""
-    **Last updated: September 24, 2026**
+    **Last updated: October 16, 2026**
 
     > This English version is a translation of the Japanese original version. The Japanese original is the authoritative text. If there is any discrepancy or conflict between this English translation and the Japanese original, the Japanese original prevails.
 
@@ -52,6 +52,7 @@ enum AppInfoTexts {
     The official distribution sources for the App are **GitHub Releases** and Apple's **TestFlight** service. GitHub Releases provides a ZIP archive containing the notarized macOS app. TestFlight provides beta builds for iOS, iPadOS, and macOS.
 
     - GitHub Releases: https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases
+    - TestFlight public beta: https://testflight.apple.com/join/rczGbqTJ
 
     General availability of the iOS, iPadOS, and macOS versions on the Apple App Store is planned for a later date. AltStore PAL is a future distribution candidate for the iOS app in Japan, but the App is not currently distributed through it. Distribution in Japan through an alternative app marketplace requires iOS 26.2 or later. Apple's regional requirements state that apps distributed through a marketplace in Japan must support iPhone; iPadOS marketplace distribution is listed for the EU. The macOS app is also outside the scope of this marketplace.
 
@@ -154,7 +155,7 @@ enum AppInfoTexts {
     """#
 
     static let termsOfUseJa = #"""
-    **最終更新日: 2026-09-24**
+    **最終更新日: 2026-10-16**
 
     ## 1. 適用
 
@@ -185,6 +186,7 @@ enum AppInfoTexts {
     本アプリの公式配布元は、GitHub の Releases ページと Apple の TestFlight です。GitHub Releases では公証済み macOS アプリを収めた ZIP ファイルを配布し、TestFlight では iOS / iPadOS / macOS 向けのベータビルドを配布しています。
 
     - GitHub Releases: https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases
+    - TestFlight公開ベータ: https://testflight.apple.com/join/rczGbqTJ
 
     App Store での一般公開は後日予定しています。AltStore PAL は日本での iOS 版配布の将来候補ですが、現時点では同ストアで配布していません。日本で代替アプリマーケットプレイスから配布するには iOS 26.2 以降が必要です。Apple の地域別要件では、日本向け代替配信アプリは iPhone をサポートする必要があり、iPadOS アプリの代替配信は EU 向け要件として記載されています。macOS 版も対象外です。
 

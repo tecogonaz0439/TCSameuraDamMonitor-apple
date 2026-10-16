@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# 段階③ release(許可制: 提案 1.3 の A4): iOS / iPadOS 用アーカイブを
+# 段階③ release(許可制: 提案 1.3 の A4): iOS / iPadOS / macOS 用アーカイブを
 # App Store Connect(TestFlight)へアップロードする。実行前に制作者の許可を得ること。
 # 対話確認を内蔵し、--yes を付けた場合のみ省略する。
 # 認証は App Store Connect API キー(.p8、共通リポジトリ直下にローカル配置)を使う。
@@ -16,19 +16,21 @@ APP_NAME="TCSameuraDamMonitor"
 TEAM_ID="W4YK6966L9"
 
 METHOD="app-store-connect"
-OUTPUT_DIR="$DIR/build/cicd/testflight-upload"
+PLATFORM="ios"
+OUTPUT_DIR=""
 ASSUME_YES="false"
 
 usage() {
     cat <<'EOF'
-Usage: release-testflight.sh [--output <dir>] [--yes]
+Usage: release-testflight.sh [--platform <platform>] [--output <dir>] [--yes]
 
 Environment variables for App Store Connect authentication:
   TCSAMEURA_ASC_API_KEY_PATH    .p8 key path (required)
   TCSAMEURA_ASC_API_KEY_ID      key ID (required)
   TCSAMEURA_ASC_API_ISSUER_ID   issuer ID (required)
 
-  --output DIR       Output directory (default: <repo>/build/cicd/testflight-upload)
+  --platform PLATFORM  Upload platform: ios (default) | macos
+  --output DIR       Output directory (default: <repo>/build/cicd/testflight-upload[-macos])
   --yes              Skip the interactive confirmation (requires prior consent from the developer)
 EOF
     exit 1
@@ -38,6 +40,7 @@ log() { echo "[release-testflight] $*" >&2; }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --platform) PLATFORM="$2"; shift ;;
         --output) OUTPUT_DIR="$2"; shift ;;
         --yes) ASSUME_YES="true" ;;
         -h|--help) usage ;;
@@ -46,8 +49,28 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
+case "$PLATFORM" in
+    ios)
+        DESTINATION="generic/platform=iOS"
+        ;;
+    macos)
+        DESTINATION="generic/platform=macOS"
+        ;;
+    *)
+        log "Error: invalid platform: $PLATFORM (expected ios|macos)"
+        usage
+        ;;
+esac
+
+if [[ -z "$OUTPUT_DIR" ]]; then
+    OUTPUT_DIR="$DIR/build/cicd/testflight-upload"
+    if [[ "$PLATFORM" == "macos" ]]; then
+        OUTPUT_DIR="$DIR/build/cicd/testflight-upload-macos"
+    fi
+fi
+
 if [[ "$ASSUME_YES" != "true" ]]; then
-    log "This will upload the iOS archive to App Store Connect (TestFlight)."
+    log "This will upload the $PLATFORM archive to App Store Connect (TestFlight)."
     read -r -p "Proceed with the upload? [y/N] " REPLY
     if [[ ! "$REPLY" =~ ^[yY]$ ]]; then
         log "Aborted by user."
@@ -96,11 +119,11 @@ log "ExportOptions.plist written: $EXPORT_OPTIONS"
 
 AUTH_FLAGS=(-authenticationKeyPath "$API_KEY_PATH" -authenticationKeyID "$API_KEY_ID" -authenticationKeyIssuerID "$API_ISSUER_ID")
 
-log "Archiving ($METHOD)..."
+log "Archiving ($METHOD/$PLATFORM)..."
 xcodebuild archive \
     -project "$PROJECT" \
     -scheme "$SCHEME" \
-    -destination 'generic/platform=iOS' \
+    -destination "$DESTINATION" \
     -archivePath "$ARCHIVE_PATH" \
     -allowProvisioningUpdates \
     "${AUTH_FLAGS[@]+"${AUTH_FLAGS[@]}"}" \
@@ -127,10 +150,10 @@ xcodebuild -exportArchive \
     }
 grep -E "BUILD SUCCEEDED|BUILD FAILED|DISTRIBUTION SUCCEEDED|DISTRIBUTION FAILED|UPLOAD SUCCEEDED|UPLOAD FAILED" "$OUTPUT_DIR/export.log" | tail -1 >&2 || true
 
-IPA=$(find "$EXPORT_PATH" -name "*.ipa" -type f 2>/dev/null | head -1 || true)
-if [[ -n "$IPA" ]]; then
-    log ".ipa created (unexpected in upload mode): $IPA"
+ARTIFACT=$(find "$EXPORT_PATH" \( -name "*.ipa" -o -name "*.pkg" \) -type f 2>/dev/null | head -1 || true)
+if [[ -n "$ARTIFACT" ]]; then
+    log "Artifact created (unexpected in upload mode): $ARTIFACT"
 else
-    log ".ipa not found (upload mode)"
+    log "No local artifact (upload mode)"
 fi
 log "Output directory: $OUTPUT_DIR"

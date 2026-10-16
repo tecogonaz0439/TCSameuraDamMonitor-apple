@@ -1,6 +1,6 @@
 # Terms of Use
 
-**Last updated: September 24, 2026**
+**Last updated: October 16, 2026**
 
 > This English version is a translation of the Japanese original `TERMS-ja.md`. The Japanese original is the authoritative text. If there is any discrepancy or conflict between this English translation and the Japanese original, the Japanese original prevails.
 
@@ -33,6 +33,7 @@ Displayed values, notifications, widgets, historical graphs, day-over-day change
 The official distribution sources for the App are **GitHub Releases** and Apple's **TestFlight** service. GitHub Releases provides a ZIP archive containing the notarized macOS app. TestFlight provides beta builds for iOS, iPadOS, and macOS.
 
 - GitHub Releases: https://github.com/tecogonaz0439/TCSameuraDamMonitor-apple/releases
+- TestFlight public beta: https://testflight.apple.com/join/rczGbqTJ
 
 General availability of the iOS, iPadOS, and macOS versions on the Apple App Store is planned for a later date. AltStore PAL is a future distribution candidate for the iOS app in Japan, but the App is not currently distributed through it. Distribution in Japan through an alternative app marketplace requires iOS 26.2 or later. Apple's regional requirements state that apps distributed through a marketplace in Japan must support iPhone; iPadOS marketplace distribution is listed for the EU. The macOS app is also outside the scope of this marketplace.
 
